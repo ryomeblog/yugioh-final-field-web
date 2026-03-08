@@ -29,7 +29,7 @@ export function StepCardReadonly({
         <div className="flex-shrink-0">
           <BoardMini
             board={step.board}
-            cellSize={24}
+            cellSize={48}
             getImageUrl={getImageUrl}
           />
         </div>

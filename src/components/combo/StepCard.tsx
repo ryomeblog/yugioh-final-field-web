@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FiTrash2, FiMenu } from "react-icons/fi";
 import type { ComboStep, BoardState } from "@/types";
-import { BoardGrid } from "@/components/board/BoardGrid";
+import { BoardGrid, type CellAction } from "@/components/board/BoardGrid";
 
 interface StepCardProps {
   step: ComboStep;
@@ -40,45 +40,38 @@ export function StepCard({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  function handleCellAction(
-    row: number,
-    col: number,
-    action: "chain" | "delete",
-  ) {
+  function handleCellAction(row: number, col: number, action: CellAction) {
     const newCells = step.board.cells.map((r) =>
       r.map((c) => (c ? { ...c } : null)),
     );
     const cell = newCells[row][col];
     if (!cell) return;
 
-    if (action === "delete") {
-      cell.imageId = null;
-      cell.chainNumber = null;
-    } else if (action === "chain") {
-      if (cell.chainNumber != null) {
+    switch (action.type) {
+      case "delete":
+        cell.imageId = null;
         cell.chainNumber = null;
-      } else {
+        cell.position = undefined;
+        break;
+      case "chain-add": {
         const maxChain = newCells
           .flat()
           .filter((c) => c?.chainNumber != null)
           .reduce((max, c) => Math.max(max, c!.chainNumber!), 0);
         cell.chainNumber = maxChain + 1;
+        break;
       }
+      case "chain-remove":
+        cell.chainNumber = null;
+        break;
+      case "chain-set":
+        cell.chainNumber = Math.max(1, action.value);
+        break;
+      case "toggle-position":
+        cell.position =
+          (cell.position ?? "attack") === "attack" ? "defense" : "attack";
+        break;
     }
-
-    // 振り直し
-    const chainCells: { row: number; col: number; num: number }[] = [];
-    newCells.forEach((r, ri) =>
-      r.forEach((c, ci) => {
-        if (c?.chainNumber != null) {
-          chainCells.push({ row: ri, col: ci, num: c.chainNumber });
-        }
-      }),
-    );
-    chainCells.sort((a, b) => a.num - b.num);
-    chainCells.forEach((cc, i) => {
-      newCells[cc.row][cc.col]!.chainNumber = i + 1;
-    });
 
     onBoardChange({ cells: newCells });
   }
@@ -136,6 +129,7 @@ export function StepCard({
           <BoardGrid
             board={step.board}
             editable={true}
+            isDropTarget={isSelected}
             onCellAction={handleCellAction}
             getImageUrl={getImageUrl}
           />

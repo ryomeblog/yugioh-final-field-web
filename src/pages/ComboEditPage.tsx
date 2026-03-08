@@ -3,7 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import {
   DndContext,
+  DragOverlay,
   type DragEndEvent,
+  type DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -31,7 +33,10 @@ import { useCombo } from "@/hooks/useCombo";
 import { useImageCache } from "@/hooks/useImageCache";
 import { useZip } from "@/hooks/useZip";
 import type { Combo, ComboStep, BoardState, StartingCard } from "@/types";
-import { createEmptyBoard } from "@/types";
+import { createEmptyBoard, CARD_RATIO } from "@/types";
+
+const OVERLAY_W = 70;
+const OVERLAY_H = Math.round(OVERLAY_W * CARD_RATIO);
 
 export function ComboEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -60,6 +65,9 @@ export function ComboEditPage() {
   const [showImport, setShowImport] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeDragImageId, setActiveDragImageId] = useState<string | null>(
+    null,
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -147,7 +155,15 @@ export function ComboEditPage() {
     markDirty();
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    const data = event.active.data.current;
+    if (data?.type === "gallery-image") {
+      setActiveDragImageId(data.imageId as string);
+    }
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setActiveDragImageId(null);
     const { active, over } = event;
     if (!over) return;
 
@@ -161,14 +177,18 @@ export function ComboEditPage() {
     ) {
       const imageId = activeData.imageId as string;
       const { row, col } = overData as { row: number; col: number };
-      // どのステップの盤面か特定 (選択中のステップ)
+      // 選択中のステップの盤面にのみドロップ
       if (selectedStepId) {
         const step = steps.find((s) => s.id === selectedStepId);
         if (step && step.board.cells[row][col] !== null) {
           const newCells = step.board.cells.map((r) =>
             r.map((c) => (c ? { ...c } : null)),
           );
-          newCells[row][col] = { imageId, chainNumber: null };
+          newCells[row][col] = {
+            imageId,
+            chainNumber: null,
+            position: "attack",
+          };
           updateStepBoard(selectedStepId, { cells: newCells });
         }
       }
@@ -235,6 +255,10 @@ export function ComboEditPage() {
     }
   }
 
+  const dragImageUrl = activeDragImageId
+    ? getImageUrl(activeDragImageId)
+    : null;
+
   return (
     <div className="flex min-h-screen flex-col bg-gray-900">
       <Header
@@ -279,7 +303,7 @@ export function ComboEditPage() {
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 space-y-4 overflow-y-auto p-4 pb-48">
+        <div className="flex-1 space-y-4 overflow-y-auto p-4 pb-72">
           {/* Title */}
           <input
             type="text"
@@ -292,7 +316,11 @@ export function ComboEditPage() {
             className="w-full rounded-md border border-gray-600 bg-gray-800 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-red-500"
           />
 
-          <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
             {/* Starting Cards */}
             <StartingCards
               cards={startingCards}
@@ -339,6 +367,27 @@ export function ComboEditPage() {
                 onAddImages={handleAddImages}
               />
             </div>
+
+            {/* Drag Overlay - カードがマウスに追従 */}
+            <DragOverlay dropAnimation={null}>
+              {dragImageUrl && (
+                <div
+                  className="rounded border border-gray-400 shadow-lg shadow-black/50"
+                  style={{
+                    width: OVERLAY_W,
+                    height: OVERLAY_H,
+                    cursor: "grabbing",
+                  }}
+                >
+                  <img
+                    src={dragImageUrl}
+                    alt=""
+                    className="h-full w-full rounded object-cover opacity-90"
+                    draggable={false}
+                  />
+                </div>
+              )}
+            </DragOverlay>
           </DndContext>
         </div>
       </div>

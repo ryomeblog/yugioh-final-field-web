@@ -79,10 +79,23 @@ interface BoardState {
 
 ```typescript
 interface BoardCell {
-  imageId: string | null;     // 配置された画像ID (null = 空)
-  chainNumber: number | null; // チェーン番号 1〜20 (null = チェーンなし)
+  imageId: string | null;                // 配置された画像ID (null = 空)
+  chainNumber: number | null;            // チェーン番号 1〜 (null = チェーンなし)
+  position?: "attack" | "defense";       // 表示形式 (デフォルト: "attack")
 }
 ```
+
+- `position` は攻撃表示 (縦) / 守備表示 (横) を表す
+- D&D で配置時のデフォルトは `"attack"`
+- 旧データとの互換性のため optional (`undefined` は `"attack"` として扱う)
+
+### カード比率
+
+```typescript
+const CARD_RATIO = 86 / 59; // 縦:横 = 86:59
+```
+
+すべてのカード画像・盤面セルはこの比率の縦長の長方形で表示する。
 
 ### CachedImage (画像キャッシュ)
 
@@ -106,9 +119,10 @@ const DISABLED_CELLS: [number, number][] = [
 
 ## 5. チェーン番号の管理ルール
 
-- チェーン番号は盤面全体で **1〜20** の連番で管理する
+- チェーン番号は盤面全体で **1〜** の連番で管理する
 - 新規チェーン追加時、現在の最大番号 + 1 を割り当てる
-- 途中のチェーンが削除された場合、残りの番号を **昇順で1から振り直す**
+- チェーン番号は +/- ボタンで個別に調整可能 (最小値: 1)
+- チェーン削除時、残りの番号はそのまま保持する (振り直しなし)
 - 1つの `ComboStep` 内の盤面でチェーン番号はユニーク
 
 ## 6. ZIP ファイル構造

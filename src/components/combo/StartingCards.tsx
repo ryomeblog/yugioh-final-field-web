@@ -1,6 +1,10 @@
 import { useDroppable } from "@dnd-kit/core";
 import { FiX } from "react-icons/fi";
 import type { StartingCard } from "@/types";
+import { CARD_RATIO } from "@/types";
+
+const SC_W = 108;
+const SC_H = Math.round(SC_W * CARD_RATIO);
 
 interface StartingCardsProps {
   cards: StartingCard[];
@@ -25,7 +29,7 @@ export function StartingCards({
       <p className="mb-1 text-xs font-bold text-gray-400">初動札</p>
       <div
         ref={editable ? setNodeRef : undefined}
-        className={`flex min-h-[56px] items-center gap-2 rounded-lg border p-3 transition-colors ${
+        className={`flex min-h-[80px] flex-wrap items-center gap-2 rounded-lg border p-3 transition-colors ${
           isOver
             ? "border-blue-400 bg-blue-900/20"
             : "border-gray-700 bg-gray-800/60"
@@ -36,7 +40,11 @@ export function StartingCards({
           .map((sc) => {
             const url = getImageUrl?.(sc.imageId);
             return (
-              <div key={sc.id} className="group relative h-10 w-10">
+              <div
+                key={sc.id}
+                className="group relative"
+                style={{ width: SC_W, height: SC_H }}
+              >
                 <div className="h-full w-full rounded bg-gray-700">
                   {url && (
                     <img

@@ -36,7 +36,11 @@ export interface BoardState {
 export interface BoardCell {
   imageId: string | null;
   chainNumber: number | null;
+  position?: "attack" | "defense";
 }
+
+/** カード比率 (縦:横 = 86:59) */
+export const CARD_RATIO = 86 / 59;
 
 export interface CachedImage {
   id: string;

@@ -2,6 +2,10 @@ import { useRef } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { FiPlus } from "react-icons/fi";
 import type { CachedImage } from "@/types";
+import { CARD_RATIO } from "@/types";
+
+const THUMB_W = 70;
+const THUMB_H = Math.round(THUMB_W * CARD_RATIO);
 
 interface DraggableImageProps {
   image: CachedImage;
@@ -19,7 +23,8 @@ function DraggableImage({ image, url }: DraggableImageProps) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`h-12 w-12 flex-shrink-0 cursor-grab rounded bg-gray-700 ${
+      style={{ width: THUMB_W, height: THUMB_H }}
+      className={`flex-shrink-0 cursor-grab rounded bg-gray-700 ${
         isDragging ? "opacity-50" : ""
       }`}
     >

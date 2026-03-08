@@ -32,9 +32,8 @@ src/
 │   │   └── ConfirmModal.tsx         # 確認モーダル (未保存警告等)
 │   │
 │   ├── board/
-│   │   ├── BoardGrid.tsx            # 5x5 盤面 SVG グリッド
-│   │   ├── BoardCell.tsx            # 盤面の1セル
-│   │   ├── BoardMini.tsx            # 詳細画面用 縮小盤面
+│   │   ├── BoardGrid.tsx            # 5x5 盤面グリッド (DroppableCell 内包、セルメニュー付き)
+│   │   ├── BoardMini.tsx            # 詳細画面用 縮小盤面 (86:59 比率)
 │   │   └── ChainBadge.tsx           # チェーン番号バッジ (SVG)
 │   │
 │   ├── combo/
@@ -71,14 +70,17 @@ App
 │   │   ├── Header [←, Import, DL, 保存, 削除]
 │   │   ├── TitleInput
 │   │   ├── StartingCards
-│   │   ├── DndContext (sortable)
-│   │   │   └── StepCard[]
-│   │   │       ├── DragHandle
-│   │   │       ├── TextArea
-│   │   │       ├── BoardGrid
-│   │   │       │   └── BoardCell[]
-│   │   │       │       └── ChainBadge?
-│   │   │       └── DeleteButton
+│   │   ├── DndContext (sortable + DragOverlay)
+│   │   │   ├── StepCard[]
+│   │   │   │   ├── DragHandle
+│   │   │   │   ├── TextArea
+│   │   │   │   ├── BoardGrid (isDropTarget=選択中のみ)
+│   │   │   │   │   └── DroppableCell[]
+│   │   │   │   │       ├── CardImage (攻撃/守備表示対応)
+│   │   │   │   │       ├── ChainBadge?
+│   │   │   │   │       └── CellMenu (チェーン+/-、攻撃/守備切替)
+│   │   │   │   └── DeleteButton
+│   │   │   └── DragOverlay (ドラッグ中カード画像)
 │   │   ├── AddStepButton
 │   │   ├── ImageGallery (fixed bottom)
 │   │   ├── ImportModal
@@ -133,25 +135,28 @@ App
 |-------|----|------|
 | board | BoardState | 盤面データ |
 | editable | boolean | 編集可能かどうか |
-| onCellClick | (row: number, col: number) => void | セルクリックコールバック |
-| onDropImage | (row: number, col: number, imageId: string) => void | 画像ドロップコールバック |
+| isDropTarget | boolean? | ドロップ対象かどうか (true のときのみセルがハイライト) |
+| onCellAction | (row, col, action: CellAction) => void | セルアクションコールバック |
+| getImageUrl | (id: string) => string \| null | 画像URL取得 |
 
-### BoardCell
+CellAction 型:
+- `{ type: "chain-add" }` — チェーン追加 (max+1)
+- `{ type: "chain-remove" }` — チェーン削除
+- `{ type: "chain-set"; value: number }` — チェーン番号設定
+- `{ type: "delete" }` — カード削除
+- `{ type: "toggle-position" }` — 攻撃/守備切替
 
-| Props | 型 | 説明 |
-|-------|----|------|
-| cell | BoardCell \| null | セルデータ (null = 無効セル) |
-| row | number | 行番号 |
-| col | number | 列番号 |
-| editable | boolean | 編集可能か |
-| onAction | (action: "chain" \| "delete" \| "close") => void | バッジアクション |
+セルサイズ: 幅44px × 高さ64px (86:59 比率)。守備表示のカードは90度回転して表示。
 
 ### BoardMini
 
 | Props | 型 | 説明 |
 |-------|----|------|
 | board | BoardState | 盤面データ |
-| cellSize | number | セルサイズ (デフォルト: 20) |
+| cellWidth | number | セル幅 (デフォルト: 20, 高さは86:59比率で自動計算) |
+| getImageUrl | (id: string) => string \| null | 画像URL取得 |
+
+守備表示のカードは90度回転して表示。
 
 ### ChainBadge
 
