@@ -7,8 +7,6 @@ import { BoardGrid, type CellAction } from "@/components/board/BoardGrid";
 interface StepCardProps {
   step: ComboStep;
   index: number;
-  isSelected: boolean;
-  onSelect: () => void;
   onTextChange: (text: string) => void;
   onBoardChange: (board: BoardState) => void;
   onDelete: () => void;
@@ -18,8 +16,6 @@ interface StepCardProps {
 export function StepCard({
   step,
   index,
-  isSelected,
-  onSelect,
   onTextChange,
   onBoardChange,
   onDelete,
@@ -80,12 +76,7 @@ export function StepCard({
     <div
       ref={setNodeRef}
       style={style}
-      onClick={onSelect}
-      className={`relative rounded-lg border transition-colors ${
-        isSelected
-          ? "border-red-500 bg-gray-800"
-          : "border-gray-700 bg-gray-800/60"
-      }`}
+      className="relative rounded-lg border border-gray-700 bg-gray-800/60 transition-colors"
     >
       <div className="flex">
         {/* Drag handle */}
@@ -118,7 +109,6 @@ export function StepCard({
           <textarea
             value={step.text}
             onChange={(e) => onTextChange(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
             placeholder="展開の解説を入力..."
             rows={3}
             className="mb-3 w-full resize-none rounded bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-600 outline-none focus:ring-1 focus:ring-red-500"
@@ -129,7 +119,7 @@ export function StepCard({
           <BoardGrid
             board={step.board}
             editable={true}
-            isDropTarget={isSelected}
+            isDropTarget={true}
             droppablePrefix={`step-${step.id}`}
             onCellAction={handleCellAction}
             getImageUrl={getImageUrl}

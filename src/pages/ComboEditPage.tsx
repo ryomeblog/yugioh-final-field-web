@@ -41,8 +41,14 @@ export function ComboEditPage() {
   const navigate = useNavigate();
   const isNew = !id;
   const { state, addCombo, updateCombo, deleteCombo } = useCombo();
-  const { images, getImageUrl, addImage, addImageFromBlob, clearImages } =
-    useImageCache();
+  const {
+    images,
+    getImageUrl,
+    addImage,
+    addImageFromBlob,
+    removeImage,
+    clearImages,
+  } = useImageCache();
   const { exportCombos, importZip } = useZip();
   const isMobile = useIsMobile();
 
@@ -63,7 +69,6 @@ export function ComboEditPage() {
       ? [...existingCombo.steps].sort((a, b) => a.order - b.order)
       : [],
   );
-  const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -131,13 +136,11 @@ export function ComboEditPage() {
       board: createEmptyBoard(),
     };
     setSteps((prev) => [...prev, newStep]);
-    setSelectedStepId(newStep.id);
     markDirty();
   }
 
   function deleteStep(stepId: string) {
     setSteps((prev) => prev.filter((s) => s.id !== stepId));
-    if (selectedStepId === stepId) setSelectedStepId(null);
     markDirty();
   }
 
@@ -173,6 +176,16 @@ export function ComboEditPage() {
     const activeData = active.data.current;
     const overData = over.data.current;
 
+    // ギャラリーから削除ゾーンへのドロップ
+    if (
+      activeData?.type === "gallery-image" &&
+      overData?.type === "gallery-delete"
+    ) {
+      const imageId = activeData.imageId as string;
+      removeImage(imageId);
+      return;
+    }
+
     // ギャラリーから盤面へのドロップ
     if (
       activeData?.type === "gallery-image" &&
@@ -180,9 +193,12 @@ export function ComboEditPage() {
     ) {
       const imageId = activeData.imageId as string;
       const { row, col } = overData as { row: number; col: number };
-      // 選択中のステップの盤面にのみドロップ
-      if (selectedStepId) {
-        const step = steps.find((s) => s.id === selectedStepId);
+      // droppable ID: "step-{stepId}-{row}-{col}" からステップIDを抽出
+      const overId = String(over.id);
+      const match = overId.match(/^step-(.+)-\d+-\d+$/);
+      if (match) {
+        const stepId = match[1];
+        const step = steps.find((s) => s.id === stepId);
         if (step && step.board.cells[row][col] !== null) {
           const newCells = step.board.cells.map((r) =>
             r.map((c) => (c ? { ...c } : null)),
@@ -192,7 +208,7 @@ export function ComboEditPage() {
             chainNumber: null,
             position: "attack",
           };
-          updateStepBoard(selectedStepId, { cells: newCells });
+          updateStepBoard(stepId, { cells: newCells });
         }
       }
       return;
@@ -343,8 +359,6 @@ export function ComboEditPage() {
                     key={step.id}
                     step={step}
                     index={i}
-                    isSelected={selectedStepId === step.id}
-                    onSelect={() => setSelectedStepId(step.id)}
                     onTextChange={(text) => updateStepText(step.id, text)}
                     onBoardChange={(board) => updateStepBoard(step.id, board)}
                     onDelete={() => deleteStep(step.id)}

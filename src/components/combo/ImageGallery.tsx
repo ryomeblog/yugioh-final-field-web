@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useDraggable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import type { CachedImage } from "@/types";
 import { CARD_RATIO } from "@/types";
@@ -39,6 +39,27 @@ function DraggableImage({
           draggable={false}
         />
       )}
+    </div>
+  );
+}
+
+function DeleteDropZone() {
+  const { setNodeRef, isOver } = useDroppable({
+    id: "gallery-delete-zone",
+    data: { type: "gallery-delete" },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex h-full flex-shrink-0 flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
+        isOver
+          ? "border-red-400 bg-red-900/40 text-red-300"
+          : "border-gray-600 bg-gray-900/50 text-gray-500"
+      }`}
+    >
+      <FiTrash2 size={20} />
+      <span className="mt-1 text-[10px]">削除</span>
     </div>
   );
 }
@@ -103,21 +124,11 @@ export function ImageGallery({
           className="hidden"
         />
       </div>
-      <div className="flex flex-col gap-2 overflow-x-auto">
-        <div className="flex gap-2">
-          {row1.map((img) => (
-            <DraggableImage
-              key={img.id}
-              image={img}
-              url={getImageUrl(img.id)}
-              thumbW={thumbW}
-              thumbH={thumbH}
-            />
-          ))}
-        </div>
-        {row2.length > 0 && (
+      <div className="flex gap-2">
+        {/* 画像一覧 (左4/5) */}
+        <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-x-auto">
           <div className="flex gap-2">
-            {row2.map((img) => (
+            {row1.map((img) => (
               <DraggableImage
                 key={img.id}
                 image={img}
@@ -127,11 +138,30 @@ export function ImageGallery({
               />
             ))}
           </div>
-        )}
-        {images.length === 0 && (
-          <p className="py-4 text-center text-xs text-gray-600">
-            画像を追加してください
-          </p>
+          {row2.length > 0 && (
+            <div className="flex gap-2">
+              {row2.map((img) => (
+                <DraggableImage
+                  key={img.id}
+                  image={img}
+                  url={getImageUrl(img.id)}
+                  thumbW={thumbW}
+                  thumbH={thumbH}
+                />
+              ))}
+            </div>
+          )}
+          {images.length === 0 && (
+            <p className="py-4 text-center text-xs text-gray-600">
+              画像を追加してください
+            </p>
+          )}
+        </div>
+        {/* 削除ゾーン (右1/5) */}
+        {images.length > 0 && (
+          <div className="w-1/5 flex-shrink-0">
+            <DeleteDropZone />
+          </div>
         )}
       </div>
     </div>
