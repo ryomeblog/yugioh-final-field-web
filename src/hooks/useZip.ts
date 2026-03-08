@@ -5,40 +5,43 @@ import type { Combo, ExportData, CachedImage } from "@/types";
 import * as db from "@/db";
 
 export function useZip() {
-  const exportCombos = useCallback(async (combos: Combo[]): Promise<void> => {
-    const zip = new JSZip();
+  const exportCombos = useCallback(
+    async (combos: Combo[], fileName?: string): Promise<void> => {
+      const zip = new JSZip();
 
-    const data: ExportData = { version: 1, combos };
-    zip.file("data.json", JSON.stringify(data, null, 2));
+      const data: ExportData = { version: 1, combos };
+      zip.file("data.json", JSON.stringify(data, null, 2));
 
-    // 使用画像IDを収集
-    const imageIds = new Set<string>();
-    for (const combo of combos) {
-      for (const sc of combo.startingCards) {
-        imageIds.add(sc.imageId);
-      }
-      for (const step of combo.steps) {
-        for (const row of step.board.cells) {
-          for (const cell of row) {
-            if (cell?.imageId) imageIds.add(cell.imageId);
+      // 使用画像IDを収集
+      const imageIds = new Set<string>();
+      for (const combo of combos) {
+        for (const sc of combo.startingCards) {
+          imageIds.add(sc.imageId);
+        }
+        for (const step of combo.steps) {
+          for (const row of step.board.cells) {
+            for (const cell of row) {
+              if (cell?.imageId) imageIds.add(cell.imageId);
+            }
           }
         }
       }
-    }
 
-    // 画像をZIPに追加
-    const imgFolder = zip.folder("images")!;
-    for (const id of imageIds) {
-      const img = await db.getImage(id);
-      if (img) {
-        const ext = img.fileName.split(".").pop() || "png";
-        imgFolder.file(`${id}.${ext}`, img.blob);
+      // 画像をZIPに追加
+      const imgFolder = zip.folder("images")!;
+      for (const id of imageIds) {
+        const img = await db.getImage(id);
+        if (img) {
+          const ext = img.fileName.split(".").pop() || "png";
+          imgFolder.file(`${id}.${ext}`, img.blob);
+        }
       }
-    }
 
-    const blob = await zip.generateAsync({ type: "blob" });
-    saveAs(blob, "combo-export.zip");
-  }, []);
+      const blob = await zip.generateAsync({ type: "blob" });
+      saveAs(blob, fileName ?? "combo-export.zip");
+    },
+    [],
+  );
 
   const importZip = useCallback(
     async (

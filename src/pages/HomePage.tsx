@@ -27,7 +27,7 @@ export function HomePage() {
 
   async function handleDownload(comboIds: string[]) {
     const selected = state.combos.filter((c) => comboIds.includes(c.id));
-    await exportCombos(selected);
+    await exportCombos(selected, "combo-collection.zip");
   }
 
   return (

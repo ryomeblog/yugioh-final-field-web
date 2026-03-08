@@ -37,7 +37,8 @@ export function ComboDetailPage() {
 
   async function handleDownload() {
     if (combo) {
-      await exportCombos([combo]);
+      const safeName = (combo.title || "combo").replace(/[/\\?%*:|"<>]/g, "_");
+      await exportCombos([combo], `${safeName}.zip`);
     }
   }
 

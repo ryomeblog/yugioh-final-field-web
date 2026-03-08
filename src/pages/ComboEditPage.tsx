@@ -7,6 +7,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -79,6 +80,9 @@ export function ComboEditPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    }),
   );
 
   const markDirty = useCallback(() => setIsDirty(true), []);
@@ -265,7 +269,8 @@ export function ComboEditPage() {
       createdAt: now,
       updatedAt: now,
     };
-    await exportCombos([combo]);
+    const safeName = (title || "combo").replace(/[/\\?%*:|"<>]/g, "_");
+    await exportCombos([combo], `${safeName}.zip`);
   }
 
   async function handleAddImages(files: FileList) {
