@@ -1,5 +1,5 @@
 import type { BoardState } from "@/types";
-import { DISABLED_CELLS, CARD_RATIO } from "@/types";
+import { DISABLED_CELLS } from "@/types";
 import { ChainBadge } from "./ChainBadge";
 
 interface BoardMiniProps {
@@ -7,6 +7,9 @@ interface BoardMiniProps {
   cellSize?: number;
   getImageUrl?: (id: string) => string | null;
 }
+
+/** カード画像幅の比率 (59/86) */
+const IMG_W_RATIO = 59 / 86;
 
 export function BoardMini({
   board,
@@ -18,8 +21,7 @@ export function BoardMini({
   const width = 5 * step - gap;
   const height = 5 * step - gap;
 
-  /** セル内カードの幅 (86:59 比率) */
-  const innerW = Math.round(cellSize / CARD_RATIO);
+  const innerW = Math.round(cellSize * IMG_W_RATIO);
   const innerH = cellSize;
 
   function isDisabled(row: number, col: number) {

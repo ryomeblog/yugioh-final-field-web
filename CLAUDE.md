@@ -63,6 +63,7 @@
 - `src/contexts/ComboContext.tsx` — ComboProvider (Reducer + IndexedDB同期)
 - `src/hooks/useCombo.ts` — useCombo フック (react-refresh対応で分離)
 - `src/hooks/useImageCache.ts` — 画像キャッシュ操作 (ObjectURL 管理)
+- `src/hooks/useIsMobile.ts` — レスポンシブ判定 (640px 未満 = モバイル)
 - `src/hooks/useZip.ts` — ZIP インポート/エクスポート
 - `src/components/layout/` — Header
 - `src/components/common/` — Modal, ImportModal, DropZone, ConfirmModal
@@ -71,6 +72,14 @@
 - `src/components/home/` — DownloadModal
 - `src/pages/` — HomePage, ComboDetailPage, ComboEditPage
 - コンポーネントファイルは PascalCase
+
+## レスポンシブ対応
+
+- ブレークポイント: 640px (Tailwind `sm`)
+- 盤面 (BoardGrid): CSS grid `1fr` + `aspect-square` で自動縮小、maxWidth で上限制限
+- 画像サイズ: `useIsMobile` フックでモバイル/デスクトップのサイズを切り替え
+- ホーム画面: グリッド 1列 (モバイル) → 2列 (デスクトップ)
+- 詳細画面: テキスト+盤面が縦並び (モバイル) → 横並び (デスクトップ)
 
 ## 設計書
 

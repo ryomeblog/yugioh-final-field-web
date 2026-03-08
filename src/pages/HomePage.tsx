@@ -66,7 +66,7 @@ export function HomePage() {
             展開がありません。+ボタンで作成してください。
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {state.combos.map((combo) => (
               <ComboCard
                 key={combo.id}

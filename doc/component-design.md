@@ -15,8 +15,10 @@ src/
 │   └── index.ts                      # IndexedDB 操作 (idb ラッパー)
 │
 ├── hooks/
-│   ├── useComboStore.ts              # 展開データ CRUD (Context + useReducer)
-│   └── useImageCache.ts             # 画像キャッシュ操作
+│   ├── useCombo.ts                   # 展開データ CRUD (Context + useReducer)
+│   ├── useImageCache.ts             # 画像キャッシュ操作
+│   ├── useIsMobile.ts               # レスポンシブ判定 (640px ブレークポイント)
+│   └── useZip.ts                    # ZIP インポート/エクスポート
 │
 ├── contexts/
 │   └── ComboContext.tsx              # 展開データの Context Provider
@@ -146,17 +148,18 @@ CellAction 型:
 - `{ type: "delete" }` — カード削除
 - `{ type: "toggle-position" }` — 攻撃/守備切替
 
-セルサイズ: 幅44px × 高さ64px (86:59 比率)。守備表示のカードは90度回転して表示。
+セルは正方形。CSS grid `repeat(5, 1fr)` + `aspect-square` でレスポンシブに自動縮小。maxWidth=366px (70px×5+gap) で上限制限。
+カード画像はセル内に 86:59 比率で中央配置。守備表示は左に倒す (rotate -90deg)。
 
 ### BoardMini
 
 | Props | 型 | 説明 |
 |-------|----|------|
 | board | BoardState | 盤面データ |
-| cellWidth | number | セル幅 (デフォルト: 20, 高さは86:59比率で自動計算) |
+| cellSize | number | セルサイズ (デフォルト: 48, 正方形) |
 | getImageUrl | (id: string) => string \| null | 画像URL取得 |
 
-守備表示のカードは90度回転して表示。
+正方形セル。カード画像は 86:59 比率で中央配置。守備表示は左に倒す (rotate -90deg)。
 
 ### ChainBadge
 

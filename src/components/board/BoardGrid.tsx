@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import type { BoardState } from "@/types";
-import { DISABLED_CELLS, CARD_RATIO } from "@/types";
+import { DISABLED_CELLS } from "@/types";
 import { ChainBadge } from "./ChainBadge";
 
 export type CellAction =
@@ -19,13 +19,14 @@ interface BoardGridProps {
   getImageUrl?: (id: string) => string | null;
 }
 
-/** セルは正方形 */
-export const CELL_SIZE = 70;
+/** デスクトップ時の最大セルサイズ */
+const MAX_CELL = 70;
 const GAP = 4;
+/** グリッド最大幅 */
+const MAX_GRID_W = 5 * MAX_CELL + 4 * GAP;
 
-/** セル内カードの幅 (86:59 比率から算出) */
-const INNER_W = Math.round(CELL_SIZE / CARD_RATIO);
-const INNER_H = CELL_SIZE;
+/** カード画像の幅 (セル内%) — 86:59 比率 */
+const IMG_W_PCT = `${(59 / 86) * 100}%`;
 
 function isDisabled(row: number, col: number) {
   return DISABLED_CELLS.some(([r, c]) => r === row && c === col);
@@ -60,7 +61,7 @@ function DroppableCell({
   });
 
   if (isDisabled(row, col)) {
-    return <div style={{ width: CELL_SIZE, height: CELL_SIZE }} />;
+    return <div className="aspect-square" />;
   }
 
   const hasImage = cell?.imageId != null;
@@ -71,8 +72,7 @@ function DroppableCell({
   return (
     <div
       ref={setNodeRef}
-      style={{ width: CELL_SIZE, height: CELL_SIZE }}
-      className={`relative flex items-center justify-center rounded-sm border transition-colors ${
+      className={`relative aspect-square rounded-sm border transition-colors ${
         isOver
           ? "border-blue-400 bg-blue-900/40"
           : row === 2
@@ -90,8 +90,8 @@ function DroppableCell({
             alt=""
             className="object-cover"
             style={{
-              width: INNER_W,
-              height: INNER_H,
+              width: IMG_W_PCT,
+              height: "100%",
               transform: isDefense ? "rotate(-90deg)" : undefined,
             }}
             draggable={false}
@@ -99,13 +99,11 @@ function DroppableCell({
         </div>
       )}
       {cell?.chainNumber != null && (
-        <svg className="pointer-events-none absolute inset-0 h-full w-full">
-          <ChainBadge
-            number={cell.chainNumber}
-            size={28}
-            x={CELL_SIZE / 2}
-            y={CELL_SIZE / 2}
-          />
+        <svg
+          viewBox="0 0 100 100"
+          className="pointer-events-none absolute inset-0 h-full w-full"
+        >
+          <ChainBadge number={cell.chainNumber} size={35} x={50} y={50} />
         </svg>
       )}
       {showMenu && editable && (
@@ -206,11 +204,11 @@ export function BoardGrid({
 }: BoardGridProps) {
   return (
     <div
-      className="inline-grid"
+      className="grid w-full"
       style={{
-        gridTemplateColumns: `repeat(5, ${CELL_SIZE}px)`,
-        gridTemplateRows: `repeat(5, ${CELL_SIZE}px)`,
+        gridTemplateColumns: "repeat(5, 1fr)",
         gap: `${GAP}px`,
+        maxWidth: `${MAX_GRID_W}px`,
       }}
     >
       {board.cells.map((row, ri) =>
@@ -230,5 +228,3 @@ export function BoardGrid({
     </div>
   );
 }
-
-export { GAP };

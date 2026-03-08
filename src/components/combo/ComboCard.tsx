@@ -1,9 +1,7 @@
 import { FiCheck } from "react-icons/fi";
 import type { Combo } from "@/types";
 import { CARD_RATIO } from "@/types";
-
-const THUMB_W = 84;
-const THUMB_H = Math.round(THUMB_W * CARD_RATIO);
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface ComboCardProps {
   combo: Combo;
@@ -22,6 +20,10 @@ export function ComboCard({
   onSelect,
   getImageUrl,
 }: ComboCardProps) {
+  const isMobile = useIsMobile();
+  const thumbW = isMobile ? 48 : 84;
+  const thumbH = Math.round(thumbW * CARD_RATIO);
+
   function handleClick() {
     if (selectable) {
       onSelect?.();
@@ -70,7 +72,7 @@ export function ComboCard({
               <div
                 key={sc.id}
                 className="rounded bg-gray-700"
-                style={{ width: THUMB_W, height: THUMB_H }}
+                style={{ width: thumbW, height: thumbH }}
               >
                 {url && (
                   <img

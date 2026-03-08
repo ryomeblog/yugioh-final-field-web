@@ -3,16 +3,19 @@ import { useDraggable } from "@dnd-kit/core";
 import { FiPlus } from "react-icons/fi";
 import type { CachedImage } from "@/types";
 import { CARD_RATIO } from "@/types";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
-const THUMB_W = 70;
-const THUMB_H = Math.round(THUMB_W * CARD_RATIO);
-
-interface DraggableImageProps {
+function DraggableImage({
+  image,
+  url,
+  thumbW,
+  thumbH,
+}: {
   image: CachedImage;
   url: string | null;
-}
-
-function DraggableImage({ image, url }: DraggableImageProps) {
+  thumbW: number;
+  thumbH: number;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `gallery-${image.id}`,
     data: { type: "gallery-image", imageId: image.id },
@@ -23,7 +26,7 @@ function DraggableImage({ image, url }: DraggableImageProps) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      style={{ width: THUMB_W, height: THUMB_H }}
+      style={{ width: thumbW, height: thumbH }}
       className={`flex-shrink-0 cursor-grab rounded bg-gray-700 ${
         isDragging ? "opacity-50" : ""
       }`}
@@ -52,6 +55,10 @@ export function ImageGallery({
   onAddImages,
 }: ImageGalleryProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
+
+  const thumbW = isMobile ? 48 : 70;
+  const thumbH = Math.round(thumbW * CARD_RATIO);
 
   // 2行に分割
   const mid = Math.ceil(images.length / 2);
@@ -59,7 +66,7 @@ export function ImageGallery({
   const row2 = images.slice(mid);
 
   return (
-    <div className="border-t border-gray-700 bg-gray-800 p-3">
+    <div className="border-t border-gray-700 bg-gray-800 p-2 sm:p-3">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-xs font-bold text-gray-400">
           画像一覧 (D&D で盤面・初動札に配置)
@@ -90,6 +97,8 @@ export function ImageGallery({
               key={img.id}
               image={img}
               url={getImageUrl(img.id)}
+              thumbW={thumbW}
+              thumbH={thumbH}
             />
           ))}
         </div>
@@ -100,6 +109,8 @@ export function ImageGallery({
                 key={img.id}
                 image={img}
                 url={getImageUrl(img.id)}
+                thumbW={thumbW}
+                thumbH={thumbH}
               />
             ))}
           </div>

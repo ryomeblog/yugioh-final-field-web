@@ -2,9 +2,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { FiX } from "react-icons/fi";
 import type { StartingCard } from "@/types";
 import { CARD_RATIO } from "@/types";
-
-const SC_W = 108;
-const SC_H = Math.round(SC_W * CARD_RATIO);
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface StartingCardsProps {
   cards: StartingCard[];
@@ -24,12 +22,16 @@ export function StartingCards({
     data: { type: "starting-cards" },
   });
 
+  const isMobile = useIsMobile();
+  const cardW = isMobile ? 64 : 108;
+  const cardH = Math.round(cardW * CARD_RATIO);
+
   return (
     <div className="mb-4">
       <p className="mb-1 text-xs font-bold text-gray-400">初動札</p>
       <div
         ref={editable ? setNodeRef : undefined}
-        className={`flex min-h-[80px] flex-wrap items-center gap-2 rounded-lg border p-3 transition-colors ${
+        className={`flex min-h-[60px] flex-wrap items-center gap-2 rounded-lg border p-2 transition-colors sm:p-3 ${
           isOver
             ? "border-blue-400 bg-blue-900/20"
             : "border-gray-700 bg-gray-800/60"
@@ -43,7 +45,7 @@ export function StartingCards({
               <div
                 key={sc.id}
                 className="group relative"
-                style={{ width: SC_W, height: SC_H }}
+                style={{ width: cardW, height: cardH }}
               >
                 <div className="h-full w-full rounded bg-gray-700">
                   {url && (

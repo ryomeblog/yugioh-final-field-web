@@ -34,9 +34,7 @@ import { useImageCache } from "@/hooks/useImageCache";
 import { useZip } from "@/hooks/useZip";
 import type { Combo, ComboStep, BoardState, StartingCard } from "@/types";
 import { createEmptyBoard, CARD_RATIO } from "@/types";
-
-const OVERLAY_W = 70;
-const OVERLAY_H = Math.round(OVERLAY_W * CARD_RATIO);
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export function ComboEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +43,10 @@ export function ComboEditPage() {
   const { state, addCombo, updateCombo, deleteCombo } = useCombo();
   const { images, getImageUrl, addImage, addImageFromBlob } = useImageCache();
   const { exportCombos, importZip } = useZip();
+  const isMobile = useIsMobile();
+
+  const overlayW = isMobile ? 48 : 70;
+  const overlayH = Math.round(overlayW * CARD_RATIO);
 
   // 編集時: 既存データから初期値を取得
   const existingCombo = !isNew
@@ -303,7 +305,7 @@ export function ComboEditPage() {
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 space-y-4 overflow-y-auto p-4 pb-72">
+        <div className="flex-1 space-y-4 overflow-y-auto p-3 pb-56 sm:p-4 sm:pb-72">
           {/* Title */}
           <input
             type="text"
@@ -374,8 +376,8 @@ export function ComboEditPage() {
                 <div
                   className="rounded border border-gray-400 shadow-lg shadow-black/50"
                   style={{
-                    width: OVERLAY_W,
-                    height: OVERLAY_H,
+                    width: overlayW,
+                    height: overlayH,
                     cursor: "grabbing",
                   }}
                 >
