@@ -50,8 +50,7 @@ src/
 │
 └── pages/
     ├── HomePage.tsx                  # ホーム画面
-    ├── ComboCreatePage.tsx          # 展開作成画面
-    ├── ComboEditPage.tsx            # 展開編集画面
+    ├── ComboEditPage.tsx            # 展開作成・編集画面 (新規/既存兼用)
     └── ComboDetailPage.tsx          # 展開詳細画面
 ```
 
@@ -84,17 +83,19 @@ App
 │   │   │   │   └── DeleteButton
 │   │   │   └── DragOverlay (ドラッグ中カード画像)
 │   │   ├── AddStepButton
-│   │   ├── ImageGallery (fixed bottom)
+│   │   ├── ImageGallery (fixed bottom, 追加+クリアボタン)
 │   │   ├── ImportModal
-│   │   └── ConfirmModal (未保存警告)
+│   │   ├── ConfirmModal (未保存警告)
+│   │   └── ConfirmModal (削除確認)
 │   │
 │   └── ComboDetailPage
-│       ├── Header [←, 編集]
+│       ├── Header [←, DL, 編集, 削除]
 │       ├── StartingCards (readonly)
-│       └── StepCardReadonly[]
-│           ├── Text (左側)
-│           └── BoardMini (右側, 縮小)
-│               └── ChainBadge?
+│       ├── StepCardReadonly[]
+│       │   ├── Text (左側)
+│       │   └── BoardMini (右側, 縮小)
+│       │       └── ChainBadge?
+│       └── ConfirmModal (削除確認)
 ```
 
 ## 主要コンポーネント仕様
@@ -211,7 +212,9 @@ CellAction 型:
 | Props | 型 | 説明 |
 |-------|----|------|
 | images | CachedImage[] | 画像一覧 |
+| getImageUrl | (id: string) => string \| null | 画像URL取得 |
 | onAddImages | (files: FileList) => void | 画像追加 |
+| onClearImages | (() => void)? | 画像一覧クリア (省略時はクリアボタン非表示) |
 
 ### DownloadModal
 

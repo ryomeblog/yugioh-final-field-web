@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 import type { CachedImage } from "@/types";
 import { CARD_RATIO } from "@/types";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -47,12 +47,14 @@ interface ImageGalleryProps {
   images: CachedImage[];
   getImageUrl: (id: string) => string | null;
   onAddImages: (files: FileList) => void;
+  onClearImages?: () => void;
 }
 
 export function ImageGallery({
   images,
   getImageUrl,
   onAddImages,
+  onClearImages,
 }: ImageGalleryProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
@@ -71,13 +73,24 @@ export function ImageGallery({
         <p className="text-xs font-bold text-gray-400">
           画像一覧 (D&D で盤面・初動札に配置)
         </p>
-        <button
-          onClick={() => inputRef.current?.click()}
-          className="flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
-        >
-          <FiPlus size={12} />
-          追加
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => inputRef.current?.click()}
+            className="flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
+          >
+            <FiPlus size={12} />
+            追加
+          </button>
+          {onClearImages && images.length > 0 && (
+            <button
+              onClick={onClearImages}
+              className="flex items-center gap-1 rounded bg-red-900/60 px-2 py-1 text-xs text-red-300 hover:bg-red-800"
+            >
+              <FiTrash2 size={12} />
+              クリア
+            </button>
+          )}
+        </div>
         <input
           ref={inputRef}
           type="file"

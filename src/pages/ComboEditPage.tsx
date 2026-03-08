@@ -41,7 +41,8 @@ export function ComboEditPage() {
   const navigate = useNavigate();
   const isNew = !id;
   const { state, addCombo, updateCombo, deleteCombo } = useCombo();
-  const { images, getImageUrl, addImage, addImageFromBlob } = useImageCache();
+  const { images, getImageUrl, addImage, addImageFromBlob, clearImages } =
+    useImageCache();
   const { exportCombos, importZip } = useZip();
   const isMobile = useIsMobile();
 
@@ -367,6 +368,7 @@ export function ComboEditPage() {
                 images={images}
                 getImageUrl={getImageUrl}
                 onAddImages={handleAddImages}
+                onClearImages={clearImages}
               />
             </div>
 

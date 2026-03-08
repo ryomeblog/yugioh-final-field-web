@@ -56,6 +56,15 @@ export function useImageCache() {
     setImages((prev) => prev.filter((img) => img.id !== id));
   }, []);
 
+  const clearImages = useCallback(async (): Promise<void> => {
+    for (const img of images) {
+      await db.deleteImage(img.id);
+    }
+    urlMap.current.forEach((url) => URL.revokeObjectURL(url));
+    urlMap.current.clear();
+    setImages([]);
+  }, [images]);
+
   const getImageUrl = useCallback((id: string): string | null => {
     return urlMap.current.get(id) ?? null;
   }, []);
@@ -83,6 +92,7 @@ export function useImageCache() {
     addImage,
     addImageFromBlob,
     removeImage,
+    clearImages,
     getImageUrl,
     loadImages,
   };
