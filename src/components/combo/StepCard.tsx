@@ -130,6 +130,7 @@ export function StepCard({
             board={step.board}
             editable={true}
             isDropTarget={isSelected}
+            droppablePrefix={`step-${step.id}`}
             onCellAction={handleCellAction}
             getImageUrl={getImageUrl}
           />

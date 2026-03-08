@@ -50,7 +50,7 @@ export function HomePage() {
             </button>
             <button
               onClick={() => navigate("/combo/new")}
-              className="rounded-md bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-500"
+              className="rounded-md bg-blue-900 px-3 py-2 text-sm text-gray-200 hover:bg-blue-800"
             >
               <FiPlus size={16} />
             </button>

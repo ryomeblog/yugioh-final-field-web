@@ -15,6 +15,8 @@ interface BoardGridProps {
   board: BoardState;
   editable: boolean;
   isDropTarget?: boolean;
+  /** Unique prefix for droppable IDs (e.g. step ID) */
+  droppablePrefix?: string;
   onCellAction?: (row: number, col: number, action: CellAction) => void;
   getImageUrl?: (id: string) => string | null;
 }
@@ -38,6 +40,7 @@ function DroppableCell({
   cell,
   editable,
   isDropTarget,
+  droppablePrefix,
   getImageUrl,
   onAction,
 }: {
@@ -50,12 +53,14 @@ function DroppableCell({
   } | null;
   editable: boolean;
   isDropTarget?: boolean;
+  droppablePrefix?: string;
   getImageUrl?: (id: string) => string | null;
   onAction?: (action: CellAction) => void;
 }) {
   const [showMenu, setShowMenu] = useState(false);
+  const prefix = droppablePrefix ?? "board";
   const { setNodeRef, isOver } = useDroppable({
-    id: `board-${row}-${col}`,
+    id: `${prefix}-${row}-${col}`,
     data: { type: "board-cell", row, col },
     disabled: !isDropTarget,
   });
@@ -199,6 +204,7 @@ export function BoardGrid({
   board,
   editable,
   isDropTarget,
+  droppablePrefix,
   onCellAction,
   getImageUrl,
 }: BoardGridProps) {
@@ -220,6 +226,7 @@ export function BoardGrid({
             cell={cell}
             editable={editable}
             isDropTarget={isDropTarget}
+            droppablePrefix={droppablePrefix}
             getImageUrl={getImageUrl}
             onAction={(action) => onCellAction?.(ri, ci, action)}
           />

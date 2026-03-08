@@ -296,7 +296,7 @@ export function ComboEditPage() {
             <button
               onClick={() => setShowDeleteConfirm(true)}
               disabled={isNew}
-              className="rounded-md bg-gray-600 p-2 text-gray-400 hover:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-md bg-red-700 p-2 text-red-200 hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <FiTrash2 size={14} />
             </button>

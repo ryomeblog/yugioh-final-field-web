@@ -1,16 +1,18 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiEdit2 } from "react-icons/fi";
+import { FiArrowLeft, FiEdit2, FiDownload } from "react-icons/fi";
 import { Header } from "@/components/layout/Header";
 import { StartingCards } from "@/components/combo/StartingCards";
 import { StepCardReadonly } from "@/components/combo/StepCardReadonly";
 import { useCombo } from "@/hooks/useCombo";
 import { useImageCache } from "@/hooks/useImageCache";
+import { useZip } from "@/hooks/useZip";
 
 export function ComboDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { state } = useCombo();
   const { getImageUrl } = useImageCache();
+  const { exportCombos } = useZip();
 
   const combo = state.combos.find((c) => c.id === id);
 
@@ -30,6 +32,12 @@ export function ComboDetailPage() {
     );
   }
 
+  async function handleDownload() {
+    if (combo) {
+      await exportCombos([combo]);
+    }
+  }
+
   const sortedSteps = [...combo.steps].sort((a, b) => a.order - b.order);
 
   return (
@@ -45,12 +53,20 @@ export function ComboDetailPage() {
           </button>
         }
         actions={
-          <button
-            onClick={() => navigate(`/combo/${id}/edit`)}
-            className="rounded-md bg-blue-900 px-3 py-2 text-sm text-gray-200 hover:bg-blue-800"
-          >
-            <FiEdit2 size={16} />
-          </button>
+          <>
+            <button
+              onClick={handleDownload}
+              className="rounded-md bg-blue-900 p-2 text-gray-200 hover:bg-blue-800"
+            >
+              <FiDownload size={16} />
+            </button>
+            <button
+              onClick={() => navigate(`/combo/${id}/edit`)}
+              className="rounded-md bg-blue-900 px-3 py-2 text-sm text-gray-200 hover:bg-blue-800"
+            >
+              <FiEdit2 size={16} />
+            </button>
+          </>
         }
       />
 
