@@ -8,7 +8,10 @@
 
 - **React 19** + **TypeScript 5.9** + **Vite 7**
 - **Tailwind CSS 4** (@tailwindcss/vite プラグイン経由)
-- **React Router 7** (BrowserRouter)
+- **React Router 7** (HashRouter, GitHub Pages 対応)
+- **@dnd-kit** (ドラッグ&ドロップ: 並び替え・画像配置)
+- **idb** (IndexedDB ラッパー)
+- **uuid** (ID 生成)
 - **JSZip** + **file-saver** (ZIP生成・ダウンロード)
 - **react-icons** (アイコン)
 - **ESLint 9** + **Prettier 3** (eslint-plugin-prettier で統合)
@@ -30,8 +33,28 @@
 
 - `@/*` → `src/*` (tsconfig.app.json + vite.config.ts で設定済み)
 
+## デプロイ
+
+- GitHub Pages (`base: "/yugioh-final-field/"`)
+- HashRouter 使用 (GitHub Pages は SPA ルーティング非対応のため)
+
+## 状態管理
+
+- React Context + useReducer (ComboContext)
+- IndexedDB (idb) で永続化
+- 画像は IndexedDB に Blob 保存、表示時に ObjectURL 生成
+
 ## ファイル構成のルール
 
-- エントリー: `src/main.tsx` (BrowserRouter をここで設定)
+- エントリー: `src/main.tsx` (HashRouter をここで設定)
 - スタイル: Tailwind CSS ユーティリティクラスを使用 (`src/index.css` に `@import "tailwindcss"`)
 - コンポーネントファイルは PascalCase
+- ページコンポーネントは `src/pages/` に配置
+- 型定義は `src/types/index.ts` に集約
+
+## 設計書
+
+- `doc/screen-design.md` — 画面設計 + ワイヤーフレーム
+- `doc/data-design.md` — データモデル + ZIP構造
+- `doc/component-design.md` — コンポーネントツリー + Props定義
+- `doc/state-design.md` — 状態管理 + データフロー

@@ -11,7 +11,10 @@
 | ビルドツール | Vite | 7.x | 開発サーバー・バンドル |
 | 言語 | TypeScript | 5.9 | 型安全 |
 | スタイリング | Tailwind CSS | 4.x | ユーティリティCSS (@tailwindcss/vite) |
-| ルーティング | React Router | 7.x | SPA ルーティング |
+| ルーティング | React Router | 7.x | SPA ルーティング (HashRouter) |
+| D&D | @dnd-kit | - | ドラッグ&ドロップ (並び替え・画像配置) |
+| DB | idb | - | IndexedDB ラッパー |
+| UUID | uuid | - | ID 生成 |
 | ZIP生成 | JSZip | 3.x | 展開パッケージのZIPダウンロード |
 | ファイル保存 | file-saver | 2.x | ブラウザでのファイルダウンロード |
 | アイコン | react-icons | - | UIアイコン |
@@ -57,13 +60,35 @@ npx prettier --write .
 - インデント: スペース2つ
 - VSCode で保存時自動フォーマット有効 (`.vscode/settings.json`)
 
+## デプロイ
+
+GitHub Pages にデプロイ (`base: "/yugioh-final-field/"`)
+
+## 設計書
+
+- [画面設計書](doc/screen-design.md)
+- [データ設計書](doc/data-design.md)
+- [コンポーネント設計書](doc/component-design.md)
+- [状態管理設計書](doc/state-design.md)
+
 ## ディレクトリ構成
 
 ```
 src/
-├── main.tsx          # エントリーポイント (BrowserRouter)
+├── main.tsx          # エントリーポイント (HashRouter)
 ├── index.css         # Tailwind CSS エントリー
-└── App.tsx           # ルートコンポーネント
+├── App.tsx           # ルーティング定義
+├── types/            # 型定義
+├── db/               # IndexedDB 操作
+├── hooks/            # Custom Hooks
+├── contexts/         # React Context
+├── components/       # UIコンポーネント
+│   ├── layout/       # レイアウト
+│   ├── common/       # 汎用
+│   ├── board/        # 盤面関連
+│   ├── combo/        # 展開関連
+│   └── home/         # ホーム画面固有
+└── pages/            # ページコンポーネント
 ```
 
 ## パスエイリアス

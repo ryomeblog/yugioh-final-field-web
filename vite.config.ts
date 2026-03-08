@@ -5,6 +5,7 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/yugioh-final-field/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

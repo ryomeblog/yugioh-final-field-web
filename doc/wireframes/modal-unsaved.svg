@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" width="400" height="250">
+  <!-- Overlay -->
+  <rect width="400" height="250" fill="rgba(0,0,0,0.6)"/>
+
+  <!-- Modal -->
+  <rect x="60" y="60" width="280" height="130" fill="#1e1e3a" rx="12" stroke="#444" stroke-width="1"/>
+
+  <!-- Warning icon -->
+  <text x="200" y="96" fill="#ffa500" font-size="20" text-anchor="middle" font-family="sans-serif">&#9888;</text>
+
+  <!-- Message -->
+  <text x="200" y="118" fill="#fff" font-size="13" text-anchor="middle" font-family="sans-serif">編集内容が保存されていません。</text>
+  <text x="200" y="136" fill="#aaa" font-size="11" text-anchor="middle" font-family="sans-serif">保存せずに戻りますか？</text>
+
+  <!-- Buttons -->
+  <rect x="80" y="150" width="110" height="32" fill="#333" rx="6"/>
+  <text x="135" y="171" fill="#ccc" font-size="12" text-anchor="middle" font-family="sans-serif">キャンセル</text>
+
+  <rect x="210" y="150" width="110" height="32" fill="#e94560" rx="6"/>
+  <text x="265" y="171" fill="#fff" font-size="12" text-anchor="middle" font-family="sans-serif">保存せず戻る</text>
+</svg>
