@@ -44,13 +44,33 @@
 - IndexedDB (idb) で永続化
 - 画像は IndexedDB に Blob 保存、表示時に ObjectURL 生成
 
-## ファイル構成のルール
+## ルーティング
 
-- エントリー: `src/main.tsx` (HashRouter をここで設定)
-- スタイル: Tailwind CSS ユーティリティクラスを使用 (`src/index.css` に `@import "tailwindcss"`)
+| パス | ページ | 説明 |
+|------|--------|------|
+| `/` | HomePage | 展開一覧 |
+| `/combo/new` | ComboEditPage | 新規作成 |
+| `/combo/:id` | ComboDetailPage | 詳細閲覧 |
+| `/combo/:id/edit` | ComboEditPage | 編集 |
+
+## ファイル構成
+
+- `src/main.tsx` — エントリー (HashRouter + ComboProvider)
+- `src/App.tsx` — ルーティング定義
+- `src/types/index.ts` — 型定義 (Combo, ComboStep, BoardState 等)
+- `src/db/index.ts` — IndexedDB CRUD (idb ラッパー)
+- `src/contexts/comboContextValue.ts` — ComboContext + 型定義 (react-refresh対応で分離)
+- `src/contexts/ComboContext.tsx` — ComboProvider (Reducer + IndexedDB同期)
+- `src/hooks/useCombo.ts` — useCombo フック (react-refresh対応で分離)
+- `src/hooks/useImageCache.ts` — 画像キャッシュ操作 (ObjectURL 管理)
+- `src/hooks/useZip.ts` — ZIP インポート/エクスポート
+- `src/components/layout/` — Header
+- `src/components/common/` — Modal, ImportModal, DropZone, ConfirmModal
+- `src/components/board/` — BoardGrid, BoardMini, ChainBadge
+- `src/components/combo/` — ComboCard, StartingCards, StepCard, StepCardReadonly, ImageGallery
+- `src/components/home/` — DownloadModal
+- `src/pages/` — HomePage, ComboDetailPage, ComboEditPage
 - コンポーネントファイルは PascalCase
-- ページコンポーネントは `src/pages/` に配置
-- 型定義は `src/types/index.ts` に集約
 
 ## 設計書
 
