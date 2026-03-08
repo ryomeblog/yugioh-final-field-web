@@ -26,7 +26,7 @@ function DraggableImage({
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      style={{ width: thumbW, height: thumbH }}
+      style={{ width: thumbW, height: thumbH, touchAction: "none" }}
       className={`flex-shrink-0 cursor-grab rounded bg-gray-700 ${
         isDragging ? "opacity-50" : ""
       }`}

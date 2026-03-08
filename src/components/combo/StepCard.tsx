@@ -83,6 +83,7 @@ export function StepCard({
         <div
           {...attributes}
           {...listeners}
+          style={{ touchAction: "none" }}
           className="flex w-5 cursor-grab items-center justify-center rounded-l-lg bg-gray-700/50 text-gray-500 hover:text-gray-300"
         >
           <FiMenu size={14} />
