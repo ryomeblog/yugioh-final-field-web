@@ -75,3 +75,20 @@ export interface ExportData {
   version: number;
   combos: Combo[];
 }
+
+/** URL共有用コンパクトフォーマット */
+export interface ShareData {
+  /** title */
+  t: string;
+  /** startingCards の画像インデックス配列 */
+  sc: number[];
+  /** 使用画像の externalUrl 一覧 */
+  imgs: string[];
+  /** steps */
+  steps: {
+    /** text */
+    x: string;
+    /** 配置済みセルのみ: [row, col, imgIdx, "d"?] */
+    b: [number, number, number, string?][];
+  }[];
+}

@@ -1,22 +1,34 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiEdit2, FiDownload, FiTrash2 } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiEdit2,
+  FiDownload,
+  FiTrash2,
+  FiShare2,
+} from "react-icons/fi";
 import { Header } from "@/components/layout/Header";
 import { StartingCards } from "@/components/combo/StartingCards";
 import { StepCardReadonly } from "@/components/combo/StepCardReadonly";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
+import { ShareModal } from "@/components/common/ShareModal";
 import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { useCombo } from "@/hooks/useCombo";
 import { useImageCache } from "@/hooks/useImageCache";
 import { useZip } from "@/hooks/useZip";
 import { useTutorial } from "@/hooks/useTutorial";
+import { encodeShareUrl } from "@/utils/share";
 
 export function ComboDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { state, deleteCombo } = useCombo();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const { getImageUrl } = useImageCache();
+  const [shareState, setShareState] = useState<{
+    url: string;
+    warnings: string[];
+  } | null>(null);
+  const { images, getImageUrl } = useImageCache();
   const { exportCombos } = useZip();
   const tutorial = useTutorial("comboDetail");
 
@@ -69,6 +81,12 @@ export function ComboDetailPage() {
         actions={
           <>
             <button
+              onClick={() => setShareState(encodeShareUrl(combo, images))}
+              className="rounded-md bg-blue-900 p-2 text-gray-200 hover:bg-blue-800"
+            >
+              <FiShare2 size={16} />
+            </button>
+            <button
               onClick={handleDownload}
               className="rounded-md bg-blue-900 p-2 text-gray-200 hover:bg-blue-800"
             >
@@ -117,6 +135,13 @@ export function ComboDetailPage() {
         title="展開を削除"
         message="この展開を削除しますか？この操作は取り消せません。"
         confirmLabel="削除する"
+      />
+
+      <ShareModal
+        isOpen={shareState !== null}
+        onClose={() => setShareState(null)}
+        url={shareState?.url ?? ""}
+        warnings={shareState?.warnings ?? []}
       />
 
       {tutorial.isActive && tutorial.currentStep && (
