@@ -14,6 +14,7 @@
 - **uuid** (ID 生成)
 - **JSZip** + **file-saver** (ZIP生成・ダウンロード)
 - **pako** (deflate/inflate 圧縮、URL共有用)
+- **vite-plugin-pwa** (PWA対応: Service Worker, マニフェスト自動生成)
 - **react-icons** (アイコン)
 - **ESLint 9** + **Prettier 3** (eslint-plugin-prettier で統合)
 
@@ -38,6 +39,15 @@
 
 - GitHub Pages (`base: "/yugioh-final-field/"`)
 - HashRouter 使用 (GitHub Pages は SPA ルーティング非対応のため)
+- GitHub Actions (`.github/workflows/deploy.yml`) で main ブランチ push 時に自動デプロイ
+  - `npm ci` → `npm run build` → `actions/upload-pages-artifact` → `actions/deploy-pages`
+
+## PWA
+
+- vite-plugin-pwa (`registerType: "autoUpdate"`) でマニフェスト・Service Worker を自動生成
+- アイコン: `public/icon-192.png`, `public/icon-512.png`, `public/apple-touch-icon.png`
+- Workbox ランタイムキャッシュ: Neuron カード画像 (`get_image.action`) を CacheFirst で30日間・最大500件キャッシュ
+- `display: "standalone"`, `theme_color: "#111827"`
 
 ## 状態管理
 
@@ -78,6 +88,9 @@
 - `src/components/combo/` — ComboCard, StartingCards, StepCard, StepCardReadonly, ImageGallery
 - `src/components/home/` — DownloadModal, SettingsModal
 - `src/pages/` — HomePage, ComboDetailPage, ComboEditPage, SharedComboPage
+- `.github/workflows/deploy.yml` — GitHub Pages 自動デプロイ
+- `public/tutorial/` — チュートリアル画像
+- `public/icon-192.png`, `public/icon-512.png`, `public/apple-touch-icon.png` — PWA アイコン
 - コンポーネントファイルは PascalCase
 
 ## レスポンシブ対応
@@ -94,8 +107,18 @@
 - CORSプロキシ (`api.codetabs.com`) 経由でNeuronデッキページのHTMLを取得し、`get_image.action` URLを解析
 - 画像URLから `cid` (カードID) を抽出して一意識別に使用
 - URL共有時: neuronUrlがある場合は `imgs` に完全URLではなく `cid` のみを格納 (URL短縮)
-- 共有URL受信時: Neuron URLから画像を再取得し `cid→url` マップで解決
+- 共有URL受信時: Neuron URLから全画像を再取得し `cid→url` マップで解決
 - neuronUrlは `Combo.neuronUrl` に保存、`ShareData.n` に格納
+- 展開編集画面: 既存展開にneuronUrlがある場合、ページ表示時に自動でNeuron画像を取得 (neuronAutoFetched ref で二重取得防止)
+- 画像の一意識別: `extractCid(url)` でcidを抽出し、重複画像を排除
+
+## 画像管理
+
+- 画像は展開ごとに分離管理 (`comboImageIds: Set<string>` を ComboEditPage で保持)
+- 画像一覧には現在編集中の展開に属する画像のみ表示
+- useImageCache の `saveImage()` で CachedImage を直接保存可能 (blob/externalUrl 両対応)
+- ZIP エクスポート時: externalUrl 画像は `data.json` の `externalImages` にメタデータとして格納 (blob は空)
+- ZIP インポート時: `externalImages` から復元し、neuronUrl があれば全画像取得 + cid重複排除
 
 ## 設計書
 

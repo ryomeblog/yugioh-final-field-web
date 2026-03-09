@@ -185,6 +185,7 @@ export.zip
     {
       "id": "uuid-xxx",
       "title": "天盃龍展開",
+      "neuronUrl": "https://www.db.yugioh-card.com/yugiohdb/deck_search.action?ope=4&sess=...",
       "startingCards": [
         { "id": "uuid-sc1", "imageId": "uuid-img1", "order": 0 }
       ],
@@ -204,9 +205,19 @@ export.zip
       "createdAt": "2026-03-07T00:00:00.000Z",
       "updatedAt": "2026-03-07T00:00:00.000Z"
     }
+  ],
+  "externalImages": [
+    {
+      "id": "uuid-img1",
+      "fileName": "card.png",
+      "externalUrl": "https://www.db.yugioh-card.com/yugiohdb/get_image.action?..."
+    }
   ]
 }
 ```
+
+- `externalImages`: externalUrl を持つ画像のメタデータ (blob は空のため ZIP 内の images/ には含めない)
+- インポート時: `externalImages` から CachedImage を復元し IndexedDB に保存
 
 ### インポート時のマージルール
 
@@ -251,7 +262,22 @@ data.n なし → imgs をそのままURLとして使用
 → CachedImage として IndexedDB に保存 → Combo 保存 → 詳細画面にリダイレクト
 ```
 
-## 8. 画面遷移とデータフロー
+## 8. 画像の展開間分離
+
+展開作成・編集画面では `comboImageIds` (Set\<string\>) で現在の展開に属する画像IDを管理する。
+
+- 画像一覧には `comboImageIds` に含まれる画像のみ表示
+- 画像追加・Neuron取得・ZIP インポート時に画像IDをセットに追加
+- 展開保存時: 使用画像は IndexedDB に保持される (展開間で共有されない)
+- 既存展開の編集画面表示時: 展開に使用中の画像IDで初期化、neuronUrl があれば自動でNeuron画像取得 (cid重複排除)
+
+## 9. PWA
+
+- vite-plugin-pwa で Service Worker + マニフェストを自動生成
+- Workbox ランタイムキャッシュ: Neuron カード画像を CacheFirst で30日間キャッシュ (最大500件)
+- アイコン: `public/icon-192.png` (192x192), `public/icon-512.png` (512x512), `public/apple-touch-icon.png`
+
+## 10. 画面遷移とデータフロー
 
 ```
 [ホーム画面]

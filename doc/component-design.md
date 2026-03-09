@@ -3,6 +3,16 @@
 ## ディレクトリ構成
 
 ```
+.github/
+└── workflows/
+    └── deploy.yml                    # GitHub Pages 自動デプロイ (main push)
+
+public/
+├── tutorial/                         # チュートリアル画像
+├── icon-192.png                      # PWA アイコン (192x192)
+├── icon-512.png                      # PWA アイコン (512x512)
+└── apple-touch-icon.png              # Apple Touch アイコン
+
 src/
 ├── main.tsx                          # エントリーポイント (HashRouter)
 ├── App.tsx                           # ルーティング定義

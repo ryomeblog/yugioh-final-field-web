@@ -61,8 +61,10 @@ interface UseImageCache {
   images: CachedImage[];
   addImage: (file: File) => Promise<CachedImage>;
   addImageFromBlob: (id: string, fileName: string, blob: Blob) => Promise<void>;
+  addImageFromUrl: (url: string) => Promise<CachedImage>;  // 外部URL画像を追加
+  saveImage: (cached: CachedImage) => Promise<void>;        // CachedImage を直接保存
   removeImage: (id: string) => Promise<void>;
-  getImageUrl: (id: string) => string | null;  // Object URL
+  getImageUrl: (id: string) => string | null;  // Object URL or externalUrl
   loadImages: () => Promise<void>;
 }
 ```
