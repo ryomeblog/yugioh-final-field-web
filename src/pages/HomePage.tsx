@@ -38,7 +38,7 @@ export function HomePage() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-900">
       <Header
-        title="展開一覧"
+        title="遊戯王 展開ログ"
         actions={
           <>
             <button
