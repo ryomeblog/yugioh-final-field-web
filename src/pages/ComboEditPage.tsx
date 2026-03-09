@@ -49,6 +49,7 @@ export function ComboEditPage() {
     getImageUrl,
     addImage,
     addImageFromBlob,
+    addImageFromUrl,
     removeImage,
     clearImages,
   } = useImageCache();
@@ -395,6 +396,9 @@ export function ComboEditPage() {
             images={images}
             getImageUrl={getImageUrl}
             onAddImages={handleAddImages}
+            onAddImageFromUrl={async (url) => {
+              await addImageFromUrl(url);
+            }}
             onClearImages={clearImages}
             isOpen={galleryOpen}
             onToggle={() => setGalleryOpen((v) => !v)}

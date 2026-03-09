@@ -46,6 +46,8 @@ export interface CachedImage {
   id: string;
   fileName: string;
   blob: Blob;
+  /** 外部画像URL（CORS回避用。設定時はblobではなくこのURLを表示に使う） */
+  externalUrl?: string;
 }
 
 export const DISABLED_CELLS: [number, number][] = [

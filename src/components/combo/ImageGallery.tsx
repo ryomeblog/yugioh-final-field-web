@@ -1,6 +1,12 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown } from "react-icons/fi";
+import {
+  FiPlus,
+  FiTrash2,
+  FiChevronUp,
+  FiChevronDown,
+  FiLink,
+} from "react-icons/fi";
 import type { CachedImage } from "@/types";
 import { CARD_RATIO } from "@/types";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -68,6 +74,7 @@ interface ImageGalleryProps {
   images: CachedImage[];
   getImageUrl: (id: string) => string | null;
   onAddImages: (files: FileList) => void;
+  onAddImageFromUrl?: (url: string) => Promise<void>;
   onClearImages?: () => void;
   isOpen: boolean;
   onToggle: () => void;
@@ -77,15 +84,35 @@ export function ImageGallery({
   images,
   getImageUrl,
   onAddImages,
+  onAddImageFromUrl,
   onClearImages,
   isOpen,
   onToggle,
 }: ImageGalleryProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlValue, setUrlValue] = useState("");
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState("");
   const isMobile = useIsMobile();
 
   const thumbW = isMobile ? 48 : 70;
   const thumbH = Math.round(thumbW * CARD_RATIO);
+
+  async function handleUrlSubmit() {
+    if (!urlValue.trim() || !onAddImageFromUrl) return;
+    setUrlLoading(true);
+    setUrlError("");
+    try {
+      await onAddImageFromUrl(urlValue.trim());
+      setUrlValue("");
+      setShowUrlInput(false);
+    } catch {
+      setUrlError("画像の取得に失敗しました");
+    } finally {
+      setUrlLoading(false);
+    }
+  }
 
   // 2行に分割
   const mid = Math.ceil(images.length / 2);
@@ -131,6 +158,15 @@ export function ImageGallery({
                   <FiPlus size={12} />
                   追加
                 </button>
+                {onAddImageFromUrl && (
+                  <button
+                    onClick={() => setShowUrlInput((v) => !v)}
+                    className="flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
+                  >
+                    <FiLink size={12} />
+                    URL
+                  </button>
+                )}
                 {onClearImages && images.length > 0 && (
                   <button
                     onClick={onClearImages}
@@ -153,6 +189,35 @@ export function ImageGallery({
                 className="hidden"
               />
             </div>
+
+            {/* URL入力 */}
+            {showUrlInput && (
+              <div className="mb-2 flex items-center gap-2">
+                <input
+                  type="url"
+                  value={urlValue}
+                  onChange={(e) => {
+                    setUrlValue(e.target.value);
+                    setUrlError("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleUrlSubmit();
+                  }}
+                  placeholder="画像URLを入力..."
+                  className="min-w-0 flex-1 rounded border border-gray-600 bg-gray-900 px-2 py-1 text-xs text-white placeholder-gray-500 outline-none focus:border-blue-500"
+                />
+                <button
+                  onClick={handleUrlSubmit}
+                  disabled={urlLoading || !urlValue.trim()}
+                  className="rounded bg-blue-600 px-3 py-1 text-xs font-bold text-white hover:bg-blue-500 disabled:opacity-40"
+                >
+                  {urlLoading ? "..." : "取得"}
+                </button>
+                {urlError && (
+                  <span className="text-[10px] text-red-400">{urlError}</span>
+                )}
+              </div>
+            )}
 
             {/* 画像グリッド */}
             <div className="flex gap-2">

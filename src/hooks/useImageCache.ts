@@ -10,10 +10,12 @@ export function useImageCache() {
   const loadImages = useCallback(async () => {
     const imgs = await db.getAllImages();
     setImages(imgs);
-    // 既存のURLを生成
     for (const img of imgs) {
       if (!urlMap.current.has(img.id)) {
-        urlMap.current.set(img.id, URL.createObjectURL(img.blob));
+        urlMap.current.set(
+          img.id,
+          img.externalUrl ?? URL.createObjectURL(img.blob),
+        );
       }
     }
   }, []);
@@ -50,7 +52,7 @@ export function useImageCache() {
     await db.deleteImage(id);
     const url = urlMap.current.get(id);
     if (url) {
-      URL.revokeObjectURL(url);
+      if (url.startsWith("blob:")) URL.revokeObjectURL(url);
       urlMap.current.delete(id);
     }
     setImages((prev) => prev.filter((img) => img.id !== id));
@@ -60,7 +62,9 @@ export function useImageCache() {
     for (const img of images) {
       await db.deleteImage(img.id);
     }
-    urlMap.current.forEach((url) => URL.revokeObjectURL(url));
+    urlMap.current.forEach((url) => {
+      if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+    });
     urlMap.current.clear();
     setImages([]);
   }, [images]);
@@ -76,21 +80,46 @@ export function useImageCache() {
       setImages(imgs);
       for (const img of imgs) {
         if (!urlMap.current.has(img.id)) {
-          urlMap.current.set(img.id, URL.createObjectURL(img.blob));
+          urlMap.current.set(
+            img.id,
+            img.externalUrl ?? URL.createObjectURL(img.blob),
+          );
         }
       }
     });
     const map = urlMap.current;
     return () => {
       cancelled = true;
-      map.forEach((url) => URL.revokeObjectURL(url));
+      map.forEach((url) => {
+        if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+      });
     };
   }, []);
+
+  const addImageFromUrl = useCallback(
+    async (externalUrl: string): Promise<CachedImage> => {
+      const fileName = externalUrl.split("/").pop()?.split("?")[0] || "image";
+      const id = uuidv4();
+      // CORS制限を回避するため、blobは空にして外部URLをそのまま参照
+      const cached: CachedImage = {
+        id,
+        fileName,
+        blob: new Blob(),
+        externalUrl,
+      };
+      await db.putImage(cached);
+      urlMap.current.set(id, externalUrl);
+      setImages((prev) => [...prev, cached]);
+      return cached;
+    },
+    [],
+  );
 
   return {
     images,
     addImage,
     addImageFromBlob,
+    addImageFromUrl,
     removeImage,
     clearImages,
     getImageUrl,
