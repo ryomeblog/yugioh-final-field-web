@@ -38,6 +38,7 @@ import { useTutorial } from "@/hooks/useTutorial";
 import type { Combo, ComboStep, BoardState, StartingCard } from "@/types";
 import { createEmptyBoard, CARD_RATIO } from "@/types";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { fetchNeuronCardUrls } from "@/utils/neuron";
 
 export function ComboEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -66,6 +67,11 @@ export function ComboEditPage() {
     : undefined;
 
   const [title, setTitle] = useState(() => existingCombo?.title ?? "");
+  const [neuronUrl, setNeuronUrl] = useState(
+    () => existingCombo?.neuronUrl ?? "",
+  );
+  const [neuronLoading, setNeuronLoading] = useState(false);
+  const [neuronError, setNeuronError] = useState<string | null>(null);
   const [startingCards, setStartingCards] = useState<StartingCard[]>(() =>
     existingCombo ? [...existingCombo.startingCards] : [],
   );
@@ -108,11 +114,29 @@ export function ComboEditPage() {
     }
   }
 
+  async function handleFetchNeuron() {
+    if (!neuronUrl.trim()) return;
+    setNeuronLoading(true);
+    setNeuronError(null);
+    try {
+      const urls = await fetchNeuronCardUrls(neuronUrl.trim());
+      for (const url of urls) {
+        await addImageFromUrl(url);
+      }
+      markDirty();
+    } catch (e) {
+      setNeuronError(e instanceof Error ? e.message : "取得に失敗しました");
+    } finally {
+      setNeuronLoading(false);
+    }
+  }
+
   async function handleSave() {
     const now = new Date().toISOString();
     const combo: Combo = {
       id: id || uuidv4(),
       title,
+      ...(neuronUrl.trim() ? { neuronUrl: neuronUrl.trim() } : {}),
       startingCards,
       steps: steps.map((s, i) => ({ ...s, order: i })),
       createdAt: isNew
@@ -351,6 +375,33 @@ export function ComboEditPage() {
               placeholder="展開タイトルを入力..."
               className="w-full rounded-md border border-gray-600 bg-gray-800 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-red-500"
             />
+
+            {/* Neuron URL */}
+            <div className="space-y-1">
+              <label className="text-xs text-gray-400">NEURON URL</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={neuronUrl}
+                  onChange={(e) => {
+                    setNeuronUrl(e.target.value);
+                    markDirty();
+                  }}
+                  placeholder="https://www.db.yugioh-card.com/yugiohdb/member_deck.action?..."
+                  className="min-w-0 flex-1 rounded-md border border-gray-600 bg-gray-800 px-3 py-1.5 text-sm text-white placeholder-gray-500 outline-none focus:border-red-500"
+                />
+                <button
+                  onClick={handleFetchNeuron}
+                  disabled={neuronLoading || !neuronUrl.trim()}
+                  className="shrink-0 rounded-md bg-blue-700 px-3 py-1.5 text-sm text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {neuronLoading ? "取得中..." : "取得"}
+                </button>
+              </div>
+              {neuronError && (
+                <p className="text-xs text-red-400">{neuronError}</p>
+              )}
+            </div>
 
             {/* Starting Cards */}
             <StartingCards

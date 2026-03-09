@@ -1,6 +1,7 @@
 export interface Combo {
   id: string;
   title: string;
+  neuronUrl?: string;
   startingCards: StartingCard[];
   steps: ComboStep[];
   createdAt: string;
@@ -80,6 +81,8 @@ export interface ExportData {
 export interface ShareData {
   /** title */
   t: string;
+  /** neuronUrl (optional) */
+  n?: string;
   /** startingCards の画像インデックス配列 */
   sc: number[];
   /** 使用画像の externalUrl 一覧 */

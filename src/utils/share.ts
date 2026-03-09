@@ -77,6 +77,7 @@ export function encodeShareUrl(
   // ShareData 構築
   const shareData: ShareData = {
     t: combo.title,
+    ...(combo.neuronUrl ? { n: combo.neuronUrl } : {}),
     sc: combo.startingCards
       .sort((a, b) => a.order - b.order)
       .map((sc) => idToIdx.get(sc.imageId) ?? -1)
@@ -137,13 +138,18 @@ export function decodeShareData(encoded: string): ShareData {
   return data;
 }
 
-/** ShareData → Combo + getImageUrl を生成 (表示用) */
-export function shareDataToCombo(data: ShareData): {
+/**
+ * ShareData → Combo を生成
+ * @param imageIds 外部で生成済みの画像ID配列 (imgs と同じ長さ)。省略時は自動生成。
+ */
+export function shareDataToCombo(
+  data: ShareData,
+  imageIds?: string[],
+): {
   combo: Combo;
   getImageUrl: (id: string) => string | null;
 } {
-  // 画像ID生成: "share-img-{idx}"
-  const imgIds = data.imgs.map((_, i) => `share-img-${i}`);
+  const imgIds = imageIds ?? data.imgs.map((_, i) => `share-img-${i}`);
   const imgUrlMap = new Map<string, string>();
   data.imgs.forEach((url, i) => imgUrlMap.set(imgIds[i], url));
 
@@ -184,6 +190,7 @@ export function shareDataToCombo(data: ShareData): {
   const combo: Combo = {
     id: uuidv4(),
     title: data.t,
+    ...(data.n ? { neuronUrl: data.n } : {}),
     startingCards,
     steps,
     createdAt: now,
