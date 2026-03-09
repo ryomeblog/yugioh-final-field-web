@@ -30,9 +30,11 @@ import { StepCard } from "@/components/combo/StepCard";
 import { ImageGallery } from "@/components/combo/ImageGallery";
 import { ImportModal } from "@/components/common/ImportModal";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
+import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { useCombo } from "@/hooks/useCombo";
 import { useImageCache } from "@/hooks/useImageCache";
 import { useZip } from "@/hooks/useZip";
+import { useTutorial } from "@/hooks/useTutorial";
 import type { Combo, ComboStep, BoardState, StartingCard } from "@/types";
 import { createEmptyBoard, CARD_RATIO } from "@/types";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -52,6 +54,7 @@ export function ComboEditPage() {
   } = useImageCache();
   const { exportCombos, importZip } = useZip();
   const isMobile = useIsMobile();
+  const tutorial = useTutorial("comboEdit");
 
   const overlayW = isMobile ? 48 : 70;
   const overlayH = Math.round(overlayW * CARD_RATIO);
@@ -122,7 +125,7 @@ export function ComboEditPage() {
       await updateCombo(combo);
     }
     setIsDirty(false);
-    navigate("/");
+    navigate(`/combo/${combo.id}`);
   }
 
   async function handleDelete() {
@@ -442,6 +445,17 @@ export function ComboEditPage() {
         message="この展開を削除しますか？この操作は取り消せません。"
         confirmLabel="削除する"
       />
+
+      {tutorial.isActive && tutorial.currentStep && (
+        <TutorialOverlay
+          step={tutorial.currentStep}
+          currentIndex={tutorial.currentStepIndex}
+          totalSteps={tutorial.totalSteps}
+          onNext={tutorial.next}
+          onBack={tutorial.back}
+          onSkip={tutorial.skip}
+        />
+      )}
     </div>
   );
 }

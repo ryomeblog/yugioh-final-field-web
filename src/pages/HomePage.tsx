@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiDownload, FiUpload, FiPlus } from "react-icons/fi";
+import { FiDownload, FiUpload, FiPlus, FiSettings } from "react-icons/fi";
 import { Header } from "@/components/layout/Header";
 import { ComboCard } from "@/components/combo/ComboCard";
 import { ImportModal } from "@/components/common/ImportModal";
 import { DownloadModal } from "@/components/home/DownloadModal";
+import { SettingsModal } from "@/components/home/SettingsModal";
+import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { useCombo } from "@/hooks/useCombo";
 import { useImageCache } from "@/hooks/useImageCache";
 import { useZip } from "@/hooks/useZip";
+import { useTutorial } from "@/hooks/useTutorial";
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -16,6 +19,8 @@ export function HomePage() {
   const { exportCombos, importZip } = useZip();
   const [showImport, setShowImport] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const tutorial = useTutorial("home");
 
   async function handleImport(file: File) {
     const { combos, images } = await importZip(file);
@@ -54,6 +59,12 @@ export function HomePage() {
             >
               <FiPlus size={16} />
             </button>
+            <button
+              onClick={() => setShowSettings(true)}
+              className="rounded-md bg-gray-700 p-2 text-gray-300 hover:bg-gray-600"
+            >
+              <FiSettings size={16} />
+            </button>
           </>
         }
       />
@@ -91,6 +102,23 @@ export function HomePage() {
         onDownload={handleDownload}
         getImageUrl={getImageUrl}
       />
+      {showSettings && (
+        <SettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {tutorial.isActive && tutorial.currentStep && (
+        <TutorialOverlay
+          step={tutorial.currentStep}
+          currentIndex={tutorial.currentStepIndex}
+          totalSteps={tutorial.totalSteps}
+          onNext={tutorial.next}
+          onBack={tutorial.back}
+          onSkip={tutorial.skip}
+        />
+      )}
     </div>
   );
 }

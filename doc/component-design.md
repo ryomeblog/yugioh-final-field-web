@@ -18,6 +18,7 @@ src/
 │   ├── useCombo.ts                   # 展開データ CRUD (Context + useReducer)
 │   ├── useImageCache.ts             # 画像キャッシュ操作
 │   ├── useIsMobile.ts               # レスポンシブ判定 (640px ブレークポイント)
+│   ├── useTutorial.ts              # チュートリアル状態管理 (localStorage + DOM rect)
 │   └── useZip.ts                    # ZIP インポート/エクスポート
 │
 ├── contexts/
@@ -45,8 +46,13 @@ src/
 │   │   ├── StepCardReadonly.tsx     # 詳細画面用 読み取り専用カード
 │   │   └── ImageGallery.tsx         # 画面下部 固定画像一覧
 │   │
+│   ├── tutorial/
+│   │   ├── TutorialOverlay.tsx      # チュートリアルオーバーレイ (SVGマスク+ツールチップ)
+│   │   └── tutorialSteps.ts         # チュートリアルステップ定義
+│   │
 │   └── home/
-│       └── DownloadModal.tsx        # ダウンロードモーダル (展開選択)
+│       ├── DownloadModal.tsx        # ダウンロードモーダル (展開選択)
+│       └── SettingsModal.tsx        # 設定モーダル (チュートリアル管理)
 │
 └── pages/
     ├── HomePage.tsx                  # ホーム画面
@@ -60,12 +66,14 @@ src/
 App
 ├── Routes
 │   ├── HomePage
-│   │   ├── Header [Import, Download, +]
+│   │   ├── Header [Import, Download, +, 設定]
 │   │   ├── ComboCard[] (グリッド)
 │   │   ├── ImportModal
 │   │   │   └── DropZone
-│   │   └── DownloadModal
-│   │       └── ComboCard[] (選択式)
+│   │   ├── DownloadModal
+│   │   │   └── ComboCard[] (選択式)
+│   │   ├── SettingsModal (チュートリアル管理)
+│   │   └── TutorialOverlay?
 │   │
 │   ├── ComboCreatePage / ComboEditPage
 │   │   ├── Header [←, Import, DL, 保存, 削除]
@@ -86,7 +94,8 @@ App
 │   │   ├── ImageGallery (fixed bottom, 追加+クリアボタン)
 │   │   ├── ImportModal
 │   │   ├── ConfirmModal (未保存警告)
-│   │   └── ConfirmModal (削除確認)
+│   │   ├── ConfirmModal (削除確認)
+│   │   └── TutorialOverlay?
 │   │
 │   └── ComboDetailPage
 │       ├── Header [←, DL, 編集, 削除]
@@ -95,7 +104,8 @@ App
 │       │   ├── Text (左側)
 │       │   └── BoardMini (右側, 縮小)
 │       │       └── ChainBadge?
-│       └── ConfirmModal (削除確認)
+│       ├── ConfirmModal (削除確認)
+│       └── TutorialOverlay?
 ```
 
 ## 主要コンポーネント仕様

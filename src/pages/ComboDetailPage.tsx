@@ -5,9 +5,11 @@ import { Header } from "@/components/layout/Header";
 import { StartingCards } from "@/components/combo/StartingCards";
 import { StepCardReadonly } from "@/components/combo/StepCardReadonly";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
+import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { useCombo } from "@/hooks/useCombo";
 import { useImageCache } from "@/hooks/useImageCache";
 import { useZip } from "@/hooks/useZip";
+import { useTutorial } from "@/hooks/useTutorial";
 
 export function ComboDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +18,7 @@ export function ComboDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { getImageUrl } = useImageCache();
   const { exportCombos } = useZip();
+  const tutorial = useTutorial("comboDetail");
 
   const combo = state.combos.find((c) => c.id === id);
 
@@ -115,6 +118,17 @@ export function ComboDetailPage() {
         message="この展開を削除しますか？この操作は取り消せません。"
         confirmLabel="削除する"
       />
+
+      {tutorial.isActive && tutorial.currentStep && (
+        <TutorialOverlay
+          step={tutorial.currentStep}
+          currentIndex={tutorial.currentStepIndex}
+          totalSteps={tutorial.totalSteps}
+          onNext={tutorial.next}
+          onBack={tutorial.back}
+          onSkip={tutorial.skip}
+        />
+      )}
     </div>
   );
 }
