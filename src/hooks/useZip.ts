@@ -29,12 +29,32 @@ export function useZip() {
 
       // 画像をZIPに追加
       const imgFolder = zip.folder("images")!;
+      const externalImages: {
+        id: string;
+        fileName: string;
+        externalUrl: string;
+      }[] = [];
       for (const id of imageIds) {
         const img = await db.getImage(id);
         if (img) {
-          const ext = img.fileName.split(".").pop() || "png";
-          imgFolder.file(`${id}.${ext}`, img.blob);
+          if (img.externalUrl) {
+            // 外部URL画像: blobは空なのでZIPに含めず、メタデータとして保存
+            externalImages.push({
+              id: img.id,
+              fileName: img.fileName,
+              externalUrl: img.externalUrl,
+            });
+          } else {
+            const ext = img.fileName.split(".").pop() || "png";
+            imgFolder.file(`${id}.${ext}`, img.blob);
+          }
         }
+      }
+
+      // externalImages がある場合は data.json に含める
+      if (externalImages.length > 0) {
+        data.externalImages = externalImages;
+        zip.file("data.json", JSON.stringify(data, null, 2));
       }
 
       const blob = await zip.generateAsync({ type: "blob" });
@@ -48,7 +68,7 @@ export function useZip() {
       file: File,
     ): Promise<{
       combos: Combo[];
-      images: { id: string; fileName: string; blob: Blob }[];
+      images: CachedImage[];
     }> => {
       const zip = await JSZip.loadAsync(file);
 
@@ -70,6 +90,18 @@ export function useZip() {
           const blob = await entry.file.async("blob");
           const id = entry.name.replace(/\.[^.]+$/, "");
           images.push({ id, fileName: entry.name, blob });
+        }
+      }
+
+      // 外部URL画像のメタデータを復元
+      if (data.externalImages) {
+        for (const ext of data.externalImages) {
+          images.push({
+            id: ext.id,
+            fileName: ext.fileName,
+            blob: new Blob(),
+            externalUrl: ext.externalUrl,
+          });
         }
       }
 

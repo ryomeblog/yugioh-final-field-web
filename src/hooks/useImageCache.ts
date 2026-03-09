@@ -96,6 +96,21 @@ export function useImageCache() {
     };
   }, []);
 
+  /** CachedImage をそのまま保存 (ZIP インポート等で使用) */
+  const saveImage = useCallback(async (cached: CachedImage): Promise<void> => {
+    await db.putImage(cached);
+    urlMap.current.set(
+      cached.id,
+      cached.externalUrl ?? URL.createObjectURL(cached.blob),
+    );
+    setImages((prev) => {
+      const exists = prev.some((img) => img.id === cached.id);
+      return exists
+        ? prev.map((img) => (img.id === cached.id ? cached : img))
+        : [...prev, cached];
+    });
+  }, []);
+
   const addImageFromUrl = useCallback(
     async (externalUrl: string): Promise<CachedImage> => {
       const fileName = externalUrl.split("/").pop()?.split("?")[0] || "image";
@@ -120,6 +135,7 @@ export function useImageCache() {
     addImage,
     addImageFromBlob,
     addImageFromUrl,
+    saveImage,
     removeImage,
     clearImages,
     getImageUrl,

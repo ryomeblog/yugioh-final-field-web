@@ -75,6 +75,8 @@ export function createEmptyBoard(): BoardState {
 export interface ExportData {
   version: number;
   combos: Combo[];
+  /** 外部URL画像のメタデータ (blob不要、URLのみで表示する画像) */
+  externalImages?: { id: string; fileName: string; externalUrl: string }[];
 }
 
 /** URL共有用コンパクトフォーマット */

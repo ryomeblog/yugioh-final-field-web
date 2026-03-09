@@ -15,7 +15,7 @@ import { useTutorial } from "@/hooks/useTutorial";
 export function HomePage() {
   const navigate = useNavigate();
   const { state, mergeCombos } = useCombo();
-  const { getImageUrl, addImageFromBlob } = useImageCache();
+  const { getImageUrl, saveImage } = useImageCache();
   const { exportCombos, importZip } = useZip();
   const [showImport, setShowImport] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
@@ -25,7 +25,7 @@ export function HomePage() {
   async function handleImport(file: File) {
     const { combos, images } = await importZip(file);
     for (const img of images) {
-      await addImageFromBlob(img.id, img.fileName, img.blob);
+      await saveImage(img);
     }
     await mergeCombos(combos);
   }

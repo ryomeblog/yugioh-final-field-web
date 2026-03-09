@@ -49,8 +49,8 @@ export function ComboEditPage() {
     images,
     getImageUrl,
     addImage,
-    addImageFromBlob,
     addImageFromUrl,
+    saveImage,
     removeImage,
     clearImages,
   } = useImageCache();
@@ -312,7 +312,7 @@ export function ComboEditPage() {
   async function handleImport(file: File) {
     const { combos, images: importedImages } = await importZip(file);
     for (const img of importedImages) {
-      await addImageFromBlob(img.id, img.fileName, img.blob);
+      await saveImage(img);
       addComboImageId(img.id);
     }
     if (combos.length > 0) {
