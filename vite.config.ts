@@ -6,7 +6,7 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/yugioh-final-field/",
+  base: "/yugioh-final-field-web/",
   plugins: [
     react(),
     tailwindcss(),
@@ -20,8 +20,8 @@ export default defineConfig({
         theme_color: "#111827",
         background_color: "#111827",
         display: "standalone",
-        start_url: "/yugioh-final-field/",
-        scope: "/yugioh-final-field/",
+        start_url: "/yugioh-final-field-web/",
+        scope: "/yugioh-final-field-web/",
         icons: [
           {
             src: "icon-192.png",

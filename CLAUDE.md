@@ -37,7 +37,7 @@
 
 ## デプロイ
 
-- GitHub Pages (`base: "/yugioh-final-field/"`)
+- GitHub Pages (`base: "/yugioh-final-field-web/"`)
 - HashRouter 使用 (GitHub Pages は SPA ルーティング非対応のため)
 - GitHub Actions (`.github/workflows/deploy.yml`) で main ブランチ push 時に自動デプロイ
   - `npm ci` → `npm run build` → `actions/upload-pages-artifact` → `actions/deploy-pages`
