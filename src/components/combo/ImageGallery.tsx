@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown } from "react-icons/fi";
 import type { CachedImage } from "@/types";
 import { CARD_RATIO } from "@/types";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -69,6 +69,8 @@ interface ImageGalleryProps {
   getImageUrl: (id: string) => string | null;
   onAddImages: (files: FileList) => void;
   onClearImages?: () => void;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
 export function ImageGallery({
@@ -76,6 +78,8 @@ export function ImageGallery({
   getImageUrl,
   onAddImages,
   onClearImages,
+  isOpen,
+  onToggle,
 }: ImageGalleryProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
@@ -89,80 +93,110 @@ export function ImageGallery({
   const row2 = images.slice(mid);
 
   return (
-    <div className="border-t border-gray-700 bg-gray-800 p-2 sm:p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-bold text-gray-400">
-          画像一覧 (D&D で盤面・初動札に配置)
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => inputRef.current?.click()}
-            className="flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
-          >
-            <FiPlus size={12} />
-            追加
-          </button>
-          {onClearImages && images.length > 0 && (
-            <button
-              onClick={onClearImages}
-              className="flex items-center gap-1 rounded bg-red-900/60 px-2 py-1 text-xs text-red-300 hover:bg-red-800"
-            >
-              <FiTrash2 size={12} />
-              クリア
-            </button>
-          )}
-        </div>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => {
-            if (e.target.files?.length) onAddImages(e.target.files);
-            e.target.value = "";
-          }}
-          className="hidden"
-        />
-      </div>
-      <div className="flex gap-2">
-        {/* 画像一覧 (左4/5) */}
-        <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-x-auto">
-          <div className="flex gap-2">
-            {row1.map((img) => (
-              <DraggableImage
-                key={img.id}
-                image={img}
-                url={getImageUrl(img.id)}
-                thumbW={thumbW}
-                thumbH={thumbH}
-              />
-            ))}
-          </div>
-          {row2.length > 0 && (
-            <div className="flex gap-2">
-              {row2.map((img) => (
-                <DraggableImage
-                  key={img.id}
-                  image={img}
-                  url={getImageUrl(img.id)}
-                  thumbW={thumbW}
-                  thumbH={thumbH}
-                />
-              ))}
-            </div>
-          )}
-          {images.length === 0 && (
-            <p className="py-4 text-center text-xs text-gray-600">
-              画像を追加してください
-            </p>
-          )}
-        </div>
-        {/* 削除ゾーン (右1/5) */}
-        {images.length > 0 && (
-          <div className="w-1/5 flex-shrink-0">
-            <DeleteDropZone />
-          </div>
+    <div className="border-t border-gray-700 bg-gray-800 pb-2">
+      {/* ハンドルバー — タップで開閉 */}
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-3 py-2"
+      >
+        <span className="text-xs font-bold text-gray-400">
+          画像一覧 ({images.length})
+        </span>
+        {isOpen ? (
+          <FiChevronDown size={16} className="text-gray-400" />
+        ) : (
+          <FiChevronUp size={16} className="text-gray-400" />
         )}
+      </button>
+
+      {/* コンテンツ — スライドアニメーション */}
+      <div
+        className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+        style={{
+          gridTemplateRows: isOpen ? "1fr" : "0fr",
+        }}
+      >
+        <div className="overflow-hidden">
+          <div className="px-2 sm:px-3">
+            {/* ツールバー */}
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-[10px] text-gray-500">
+                D&D で盤面・初動札に配置
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => inputRef.current?.click()}
+                  className="flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
+                >
+                  <FiPlus size={12} />
+                  追加
+                </button>
+                {onClearImages && images.length > 0 && (
+                  <button
+                    onClick={onClearImages}
+                    className="flex items-center gap-1 rounded bg-red-900/60 px-2 py-1 text-xs text-red-300 hover:bg-red-800"
+                  >
+                    <FiTrash2 size={12} />
+                    クリア
+                  </button>
+                )}
+              </div>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files?.length) onAddImages(e.target.files);
+                  e.target.value = "";
+                }}
+                className="hidden"
+              />
+            </div>
+
+            {/* 画像グリッド */}
+            <div className="flex gap-2">
+              {/* 画像一覧 (左4/5) */}
+              <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-x-auto">
+                <div className="flex gap-2">
+                  {row1.map((img) => (
+                    <DraggableImage
+                      key={img.id}
+                      image={img}
+                      url={getImageUrl(img.id)}
+                      thumbW={thumbW}
+                      thumbH={thumbH}
+                    />
+                  ))}
+                </div>
+                {row2.length > 0 && (
+                  <div className="flex gap-2">
+                    {row2.map((img) => (
+                      <DraggableImage
+                        key={img.id}
+                        image={img}
+                        url={getImageUrl(img.id)}
+                        thumbW={thumbW}
+                        thumbH={thumbH}
+                      />
+                    ))}
+                  </div>
+                )}
+                {images.length === 0 && (
+                  <p className="py-4 text-center text-xs text-gray-600">
+                    画像を追加してください
+                  </p>
+                )}
+              </div>
+              {/* 削除ゾーン (右1/5) */}
+              {images.length > 0 && (
+                <div className="w-1/5 flex-shrink-0">
+                  <DeleteDropZone />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

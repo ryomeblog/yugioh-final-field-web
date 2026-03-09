@@ -37,11 +37,11 @@ export const TUTORIAL_STEPS: Record<TutorialPageKey, TutorialStep[]> = {
   comboEdit: [
     {
       image: "tutorial/edit-1.png",
-      text: "展開のタイトルを入力します。",
+      text: "こちらの画面では、展開を作成・編集できます。まず、展開のタイトルを入力します。",
     },
     {
       image: "tutorial/edit-1.png",
-      text: "初動札エリアです。画面下部の画像一覧からドラッグ&ドロップで初動札を配置できます。タップで削除できます。",
+      text: "初動札エリアには画面下部の画像一覧からドラッグ&ドロップで初動札を配置できます。タップで削除できます。",
     },
     {
       image: "tutorial/edit-2.png",
@@ -71,11 +71,11 @@ export const TUTORIAL_STEPS: Record<TutorialPageKey, TutorialStep[]> = {
   comboDetail: [
     {
       image: "tutorial/detail-1.png",
-      text: "初動札が表示されます。",
+      text: "こちらの画面では、展開の詳細を表示します。初動札は展開で使用するカードを示します。",
     },
     {
       image: "tutorial/detail-2.png",
-      text: "展開のステップが順番に表示されます。各ステップにはテキストと盤面があります。チェーン番号や攻撃/守備表示も反映されます。",
+      text: "展開のステップについては作成時の順番に表示されます。各ステップにはテキストと盤面があります。チェーン番号や攻撃/守備表示も反映されます。",
     },
     {
       image: "tutorial/detail-3.png",

@@ -59,9 +59,9 @@ export function StartingCards({
                 {editable && (
                   <button
                     onClick={() => onRemove?.(sc.id)}
-                    className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-red-600 text-white group-hover:flex"
+                    className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white"
                   >
-                    <FiX size={10} />
+                    <FiX size={14} />
                   </button>
                 )}
               </div>

@@ -80,6 +80,7 @@ export function ComboEditPage() {
   const [activeDragImageId, setActiveDragImageId] = useState<string | null>(
     null,
   );
+  const [galleryOpen, setGalleryOpen] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -329,25 +330,27 @@ export function ComboEditPage() {
         }
       />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 space-y-4 overflow-y-auto p-3 pb-56 sm:p-4 sm:pb-72">
-          {/* Title */}
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              markDirty();
-            }}
-            placeholder="展開タイトルを入力..."
-            className="w-full rounded-md border border-gray-600 bg-gray-800 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-red-500"
-          />
-
-          <DndContext
-            sensors={sensors}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <div
+            className={`flex-1 space-y-4 overflow-y-auto p-3 sm:p-4 ${galleryOpen ? "pb-64 sm:pb-80" : "pb-20"}`}
           >
+            {/* Title */}
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                markDirty();
+              }}
+              placeholder="展開タイトルを入力..."
+              className="w-full rounded-md border border-gray-600 bg-gray-800 px-4 py-2 text-white placeholder-gray-500 outline-none focus:border-red-500"
+            />
+
             {/* Starting Cards */}
             <StartingCards
               cards={startingCards}
@@ -383,40 +386,42 @@ export function ComboEditPage() {
             >
               <FiPlus size={18} />
             </button>
+          </div>
+        </div>
 
-            {/* Fixed Image Gallery */}
-            <div className="fixed bottom-0 left-0 right-0 z-10">
-              <ImageGallery
-                images={images}
-                getImageUrl={getImageUrl}
-                onAddImages={handleAddImages}
-                onClearImages={clearImages}
+        {/* Fixed Image Gallery — space-y-4 の外に配置 */}
+        <div className="fixed bottom-0 left-0 right-0 z-10">
+          <ImageGallery
+            images={images}
+            getImageUrl={getImageUrl}
+            onAddImages={handleAddImages}
+            onClearImages={clearImages}
+            isOpen={galleryOpen}
+            onToggle={() => setGalleryOpen((v) => !v)}
+          />
+        </div>
+
+        {/* Drag Overlay - カードがマウスに追従 */}
+        <DragOverlay dropAnimation={null}>
+          {dragImageUrl && (
+            <div
+              className="rounded border border-gray-400 shadow-lg shadow-black/50"
+              style={{
+                width: overlayW,
+                height: overlayH,
+                cursor: "grabbing",
+              }}
+            >
+              <img
+                src={dragImageUrl}
+                alt=""
+                className="h-full w-full rounded object-cover opacity-90"
+                draggable={false}
               />
             </div>
-
-            {/* Drag Overlay - カードがマウスに追従 */}
-            <DragOverlay dropAnimation={null}>
-              {dragImageUrl && (
-                <div
-                  className="rounded border border-gray-400 shadow-lg shadow-black/50"
-                  style={{
-                    width: overlayW,
-                    height: overlayH,
-                    cursor: "grabbing",
-                  }}
-                >
-                  <img
-                    src={dragImageUrl}
-                    alt=""
-                    className="h-full w-full rounded object-cover opacity-90"
-                    draggable={false}
-                  />
-                </div>
-              )}
-            </DragOverlay>
-          </DndContext>
-        </div>
-      </div>
+          )}
+        </DragOverlay>
+      </DndContext>
 
       <ImportModal
         isOpen={showImport}
