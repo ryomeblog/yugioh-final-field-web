@@ -8,6 +8,7 @@ import type {
   StartingCard,
 } from "@/types";
 import { createEmptyBoard } from "@/types";
+import { extractCid } from "@/utils/neuron";
 
 const URL_WARN_LENGTH = 4000;
 
@@ -67,11 +68,29 @@ export function encodeShareUrl(
   }
 
   // imgs 配列と imageId→index マップ
+  // neuronUrl がある場合は cid のみ格納 (URL短縮)
   const imgs: string[] = [];
   const idToIdx = new Map<string, number>();
+  const useNeuronCids = !!combo.neuronUrl;
+  let cidFailCount = 0;
   for (const [id, url] of imgMap) {
-    idToIdx.set(id, imgs.length);
-    imgs.push(url);
+    if (useNeuronCids) {
+      const cid = extractCid(url);
+      if (cid) {
+        idToIdx.set(id, imgs.length);
+        imgs.push(cid);
+      } else {
+        cidFailCount++;
+      }
+    } else {
+      idToIdx.set(id, imgs.length);
+      imgs.push(url);
+    }
+  }
+  if (cidFailCount > 0) {
+    warnings.push(
+      `${cidFailCount}枚の画像はNeuron由来ではないため共有に含まれません。`,
+    );
   }
 
   // ShareData 構築

@@ -8,6 +8,12 @@ export function isNeuronDeckUrl(url: string): boolean {
   return /yugioh-card\.com\/yugiohdb\/member_deck\.action/.test(url);
 }
 
+/** Neuron画像URLからcidを抽出 */
+export function extractCid(imageUrl: string): string | null {
+  const match = imageUrl.match(/[?&]cid=(\d+)/);
+  return match ? match[1] : null;
+}
+
 /** Neuron デッキURLからカード画像URLを取得 */
 export async function fetchNeuronCardUrls(
   neuronDeckUrl: string,
