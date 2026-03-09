@@ -318,6 +318,7 @@ export function ComboEditPage() {
     if (combos.length > 0) {
       const combo = combos[0];
       setTitle(combo.title);
+      setNeuronUrl(combo.neuronUrl ?? "");
       setStartingCards(combo.startingCards);
       setSteps(combo.steps.sort((a, b) => a.order - b.order));
       markDirty();
@@ -329,6 +330,7 @@ export function ComboEditPage() {
     const combo: Combo = {
       id: id || uuidv4(),
       title,
+      ...(neuronUrl.trim() ? { neuronUrl: neuronUrl.trim() } : {}),
       startingCards,
       steps: steps.map((s, i) => ({ ...s, order: i })),
       createdAt: now,
