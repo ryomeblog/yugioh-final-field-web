@@ -15,29 +15,17 @@ export const TUTORIAL_STEPS: Record<TutorialPageKey, TutorialStep[]> = {
     },
     {
       image: "tutorial/home-2.png",
-      text: "ヘッダーのボタンからインポート・ダウンロード・新規作成・設定ができます。",
-    },
-    {
-      image: "tutorial/home-2.png",
-      text: "インポートボタン（↑）でZIPファイルから展開データを取り込めます。",
-    },
-    {
-      image: "tutorial/home-2.png",
-      text: "ダウンロードボタン（↓）で展開をZIPファイルとしてダウンロードできます。",
-    },
-    {
-      image: "tutorial/home-2.png",
-      text: "「+」ボタンで新しい展開を作成できます。",
-    },
-    {
-      image: "tutorial/home-2.png",
-      text: "歯車ボタンの設定画面でチュートリアルの再表示ができます。",
+      text: "ヘッダーのボタンから、インポート（↑）・ダウンロード（↓）・新規作成（+）・設定（⚙）ができます。設定画面ではチュートリアルの再表示が可能です。",
     },
   ],
   comboEdit: [
     {
       image: "tutorial/edit-1.png",
       text: "こちらの画面では、展開を作成・編集できます。まず、展開のタイトルを入力します。",
+    },
+    {
+      image: "tutorial/edit-1.png",
+      text: "NEURON URLにデッキURLを入力して「取得」ボタンを押すと、デッキ内のカード画像を一括取得できます。取得した画像は画像一覧に追加されます。",
     },
     {
       image: "tutorial/edit-1.png",

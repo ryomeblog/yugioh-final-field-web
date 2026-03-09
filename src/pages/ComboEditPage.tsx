@@ -52,7 +52,6 @@ export function ComboEditPage() {
     addImageFromUrl,
     saveImage,
     removeImage,
-    clearImages,
   } = useImageCache();
   const { exportCombos, importZip } = useZip();
   const isMobile = useIsMobile();
