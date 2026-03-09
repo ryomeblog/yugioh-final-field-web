@@ -22,34 +22,37 @@ export function SharedComboPage() {
       try {
         const data = decodeShareData(encoded);
 
-        // imgs の各エントリを実際の画像URLに解決
-        let resolvedUrls: string[];
+        // 画像を解決して IndexedDB に保存
+        const imageIds: string[] = [];
 
         if (data.n) {
           // Neuron URL あり → imgs は cid の配列
-          // Neuron からカード画像を取得して cid→url マップを構築
+          // Neuron からデッキ全カード画像を取得
           const neuronUrls = await fetchNeuronCardUrls(data.n);
-          const cidToUrl = new Map<string, string>();
+          const cidToId = new Map<string, string>();
+
+          // 全カード画像を保存し、cid→UUID マップを構築
           for (const url of neuronUrls) {
+            const cached = await addImageFromUrl(url);
             const cid = extractCid(url);
-            if (cid) cidToUrl.set(cid, url);
+            if (cid) cidToId.set(cid, cached.id);
           }
-          resolvedUrls = data.imgs.map((cid) => {
-            const url = cidToUrl.get(cid);
-            if (!url)
-              throw new Error(`カードID ${cid} がNeuronデッキに見つかりません`);
-            return url;
-          });
+
+          // imgs の cid を UUID に解決
+          for (const cid of data.imgs) {
+            const imgId = cidToId.get(cid);
+            if (!imgId)
+              throw new Error(
+                `カードID ${cid} がNeuronデッキに見つかりません`,
+              );
+            imageIds.push(imgId);
+          }
         } else {
           // Neuron URL なし → imgs は完全な画像URL
-          resolvedUrls = data.imgs;
-        }
-
-        // 各画像を IndexedDB に保存し、生成された UUID を取得
-        const imageIds: string[] = [];
-        for (const url of resolvedUrls) {
-          const cached = await addImageFromUrl(url);
-          imageIds.push(cached.id);
+          for (const url of data.imgs) {
+            const cached = await addImageFromUrl(url);
+            imageIds.push(cached.id);
+          }
         }
 
         // ShareData → Combo (実際の画像IDで構築)

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -38,7 +38,7 @@ import { useTutorial } from "@/hooks/useTutorial";
 import type { Combo, ComboStep, BoardState, StartingCard } from "@/types";
 import { createEmptyBoard, CARD_RATIO } from "@/types";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { fetchNeuronCardUrls } from "@/utils/neuron";
+import { fetchNeuronCardUrls, extractCid } from "@/utils/neuron";
 
 export function ComboEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -147,16 +147,51 @@ export function ComboEditPage() {
     }
   }
 
+  /** 現在の展開画像から既存cidのSetを構築 */
+  function getExistingCids(): Set<string> {
+    const cids = new Set<string>();
+    for (const img of images) {
+      if (comboImageIds.has(img.id) && img.externalUrl) {
+        const cid = extractCid(img.externalUrl);
+        if (cid) cids.add(cid);
+      }
+    }
+    return cids;
+  }
+
+  /** Neuron URLから画像を取得し、既存cidと重複しないものだけ追加 */
+  async function fetchAndAddNeuronImages(url: string) {
+    const neuronUrls = await fetchNeuronCardUrls(url);
+    const existingCids = getExistingCids();
+    for (const imgUrl of neuronUrls) {
+      const cid = extractCid(imgUrl);
+      if (cid && existingCids.has(cid)) continue;
+      const cached = await addImageFromUrl(imgUrl);
+      addComboImageId(cached.id);
+    }
+  }
+
+  // 編集画面を開いた時に neuronUrl があれば自動で全画像取得
+  const neuronAutoFetched = useRef(false);
+  useEffect(() => {
+    if (neuronAutoFetched.current) return;
+    const url = existingCombo?.neuronUrl;
+    if (!url) return;
+    neuronAutoFetched.current = true;
+    setNeuronLoading(true);
+    fetchAndAddNeuronImages(url)
+      .catch(() => {
+        // 自動取得失敗時は既存画像のみで表示
+      })
+      .finally(() => setNeuronLoading(false));
+  });
+
   async function handleFetchNeuron() {
     if (!neuronUrl.trim()) return;
     setNeuronLoading(true);
     setNeuronError(null);
     try {
-      const urls = await fetchNeuronCardUrls(neuronUrl.trim());
-      for (const url of urls) {
-        const cached = await addImageFromUrl(url);
-        addComboImageId(cached.id);
-      }
+      await fetchAndAddNeuronImages(neuronUrl.trim());
       markDirty();
     } catch (e) {
       setNeuronError(e instanceof Error ? e.message : "取得に失敗しました");
@@ -322,6 +357,15 @@ export function ComboEditPage() {
       setStartingCards(combo.startingCards);
       setSteps(combo.steps.sort((a, b) => a.order - b.order));
       markDirty();
+
+      // neuronUrl があればデッキ全画像を取得 (既存cidと重複しないもののみ)
+      if (combo.neuronUrl) {
+        try {
+          await fetchAndAddNeuronImages(combo.neuronUrl);
+        } catch {
+          // Neuron取得失敗時はインポート済み画像のみで継続
+        }
+      }
     }
   }
 
