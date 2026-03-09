@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -89,6 +89,39 @@ export function ComboEditPage() {
   );
   const [galleryOpen, setGalleryOpen] = useState(true);
 
+  // この展開に属する画像IDを管理 (展開間で画像を分離)
+  const [comboImageIds, setComboImageIds] = useState<Set<string>>(() => {
+    if (!existingCombo) return new Set();
+    const ids = new Set<string>();
+    for (const sc of existingCombo.startingCards) ids.add(sc.imageId);
+    for (const step of existingCombo.steps) {
+      for (const row of step.board.cells) {
+        for (const cell of row) {
+          if (cell?.imageId) ids.add(cell.imageId);
+        }
+      }
+    }
+    return ids;
+  });
+
+  const addComboImageId = useCallback((id: string) => {
+    setComboImageIds((prev) => new Set(prev).add(id));
+  }, []);
+
+  const removeComboImageId = useCallback((id: string) => {
+    setComboImageIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  // ギャラリーに表示する画像をこの展開のものだけにフィルタ
+  const comboImages = useMemo(
+    () => images.filter((img) => comboImageIds.has(img.id)),
+    [images, comboImageIds],
+  );
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, {
@@ -121,7 +154,8 @@ export function ComboEditPage() {
     try {
       const urls = await fetchNeuronCardUrls(neuronUrl.trim());
       for (const url of urls) {
-        await addImageFromUrl(url);
+        const cached = await addImageFromUrl(url);
+        addComboImageId(cached.id);
       }
       markDirty();
     } catch (e) {
@@ -215,6 +249,7 @@ export function ComboEditPage() {
       overData?.type === "gallery-delete"
     ) {
       const imageId = activeData.imageId as string;
+      removeComboImageId(imageId);
       removeImage(imageId);
       return;
     }
@@ -278,6 +313,7 @@ export function ComboEditPage() {
     const { combos, images: importedImages } = await importZip(file);
     for (const img of importedImages) {
       await addImageFromBlob(img.id, img.fileName, img.blob);
+      addComboImageId(img.id);
     }
     if (combos.length > 0) {
       const combo = combos[0];
@@ -304,7 +340,8 @@ export function ComboEditPage() {
 
   async function handleAddImages(files: FileList) {
     for (const file of Array.from(files)) {
-      await addImage(file);
+      const cached = await addImage(file);
+      addComboImageId(cached.id);
     }
   }
 
@@ -444,13 +481,19 @@ export function ComboEditPage() {
         {/* Fixed Image Gallery — space-y-4 の外に配置 */}
         <div className="fixed bottom-0 left-0 right-0 z-10">
           <ImageGallery
-            images={images}
+            images={comboImages}
             getImageUrl={getImageUrl}
             onAddImages={handleAddImages}
             onAddImageFromUrl={async (url) => {
-              await addImageFromUrl(url);
+              const cached = await addImageFromUrl(url);
+              addComboImageId(cached.id);
             }}
-            onClearImages={clearImages}
+            onClearImages={() => {
+              for (const img of comboImages) {
+                removeImage(img.id);
+              }
+              setComboImageIds(new Set());
+            }}
             isOpen={galleryOpen}
             onToggle={() => setGalleryOpen((v) => !v)}
           />
