@@ -13,6 +13,7 @@
 - **idb** (IndexedDB ラッパー)
 - **uuid** (ID 生成)
 - **JSZip** + **file-saver** (ZIP生成・ダウンロード)
+- **pako** (deflate/inflate 圧縮、URL共有用)
 - **react-icons** (アイコン)
 - **ESLint 9** + **Prettier 3** (eslint-plugin-prettier で統合)
 
@@ -53,6 +54,7 @@
 | `/combo/new` | ComboEditPage | 新規作成 |
 | `/combo/:id` | ComboDetailPage | 詳細閲覧 |
 | `/combo/:id/edit` | ComboEditPage | 編集 |
+| `/share?d=<encoded>` | SharedComboPage | URL共有された展開の閲覧 (読み取り専用) |
 
 ## ファイル構成
 
@@ -67,13 +69,14 @@
 - `src/hooks/useIsMobile.ts` — レスポンシブ判定 (640px 未満 = モバイル)
 - `src/hooks/useTutorial.ts` — チュートリアル状態管理 (localStorage)
 - `src/hooks/useZip.ts` — ZIP インポート/エクスポート
+- `src/utils/share.ts` — URL共有 エンコード/デコード (pako + Base64url)
 - `src/components/layout/` — Header
-- `src/components/common/` — Modal, ImportModal, DropZone, ConfirmModal
+- `src/components/common/` — Modal, ImportModal, DropZone, ConfirmModal, ShareModal
 - `src/components/tutorial/` — TutorialOverlay, tutorialSteps
 - `src/components/board/` — BoardGrid, BoardMini, ChainBadge
 - `src/components/combo/` — ComboCard, StartingCards, StepCard, StepCardReadonly, ImageGallery
 - `src/components/home/` — DownloadModal, SettingsModal
-- `src/pages/` — HomePage, ComboDetailPage, ComboEditPage
+- `src/pages/` — HomePage, ComboDetailPage, ComboEditPage, SharedComboPage
 - コンポーネントファイルは PascalCase
 
 ## レスポンシブ対応

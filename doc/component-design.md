@@ -32,7 +32,8 @@ src/
 │   │   ├── Modal.tsx                # 汎用モーダル
 │   │   ├── ImportModal.tsx          # ZIPインポートモーダル
 │   │   ├── DropZone.tsx             # D&D ファイルアップロードゾーン
-│   │   └── ConfirmModal.tsx         # 確認モーダル (未保存警告等)
+│   │   ├── ConfirmModal.tsx         # 確認モーダル (未保存警告等)
+│   │   └── ShareModal.tsx           # 共有URLモーダル (URL表示+コピー)
 │   │
 │   ├── board/
 │   │   ├── BoardGrid.tsx            # 5x5 盤面グリッド (DroppableCell 内包、セルメニュー付き)
@@ -54,10 +55,14 @@ src/
 │       ├── DownloadModal.tsx        # ダウンロードモーダル (展開選択)
 │       └── SettingsModal.tsx        # 設定モーダル (チュートリアル管理)
 │
+├── utils/
+│   └── share.ts                     # URL共有 エンコード/デコード (pako + Base64url)
+│
 └── pages/
     ├── HomePage.tsx                  # ホーム画面
     ├── ComboEditPage.tsx            # 展開作成・編集画面 (新規/既存兼用)
-    └── ComboDetailPage.tsx          # 展開詳細画面
+    ├── ComboDetailPage.tsx          # 展開詳細画面
+    └── SharedComboPage.tsx          # 共有展開画面 (URL共有された展開の閲覧)
 ```
 
 ## コンポーネントツリー
@@ -97,15 +102,25 @@ App
 │   │   ├── ConfirmModal (削除確認)
 │   │   └── TutorialOverlay?
 │   │
-│   └── ComboDetailPage
-│       ├── Header [←, DL, 編集, 削除]
-│       ├── StartingCards (readonly)
-│       ├── StepCardReadonly[]
-│       │   ├── Text (左側)
-│       │   └── BoardMini (右側, 縮小)
-│       │       └── ChainBadge?
-│       ├── ConfirmModal (削除確認)
-│       └── TutorialOverlay?
+│   ├── ComboDetailPage
+│   │   ├── Header [←, 共有, DL, 編集, 削除]
+│   │   ├── StartingCards (readonly)
+│   │   ├── StepCardReadonly[]
+│   │   │   ├── Text (左側)
+│   │   │   └── BoardMini (右側, 縮小)
+│   │   │       └── ChainBadge?
+│   │   ├── ConfirmModal (削除確認)
+│   │   ├── ShareModal (共有URL表示)
+│   │   └── TutorialOverlay?
+│   │
+│   └── SharedComboPage
+│       ├── Header [←, タイトル]
+│       ├── DndContext (StartingCards用)
+│       │   └── StartingCards (readonly)
+│       └── StepCardReadonly[]
+│           ├── Text (左側)
+│           └── BoardMini (右側, 縮小)
+│               └── ChainBadge?
 ```
 
 ## 主要コンポーネント仕様
@@ -247,3 +262,12 @@ CellAction 型:
 | title | string | タイトル |
 | message | string | メッセージ |
 | confirmLabel | string | 確認ボタンラベル |
+
+### ShareModal
+
+| Props | 型 | 説明 |
+|-------|----|------|
+| isOpen | boolean | 表示状態 |
+| onClose | () => void | 閉じるコールバック |
+| url | string | 共有URL |
+| warnings | string[] | 警告メッセージ一覧 (blob画像不可、URL長超過等) |

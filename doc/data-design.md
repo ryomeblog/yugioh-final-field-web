@@ -111,6 +111,27 @@ interface CachedImage {
 - ファイル選択で追加した画像: `blob` に画像データ、表示時は `URL.createObjectURL(blob)` を使用
 - URLから追加した画像: `blob` は空 (`new Blob()`)、`externalUrl` に元URLを保持。表示時は `externalUrl` を直接 `<img src>` に使用 (CORS制限でfetch不可のため)
 
+### ShareData (URL共有用コンパクトフォーマット)
+
+```typescript
+interface ShareData {
+  t: string;          // title
+  sc: number[];       // startingCards の画像インデックス配列
+  imgs: string[];     // 使用画像の externalUrl 一覧
+  steps: {
+    x: string;        // step text
+    b: [number, number, number, string?][];
+    // 配置済みセルのみ: [row, col, imgIdx, "d"?, chainNumber?]
+  }[];
+}
+```
+
+- UUID を排除し画像インデックス (0, 1, 2...) に変換してサイズ削減
+- 空セルを含めない (配置済みカードのみ)
+- エンコード: `JSON → pako deflate → Base64url`
+- デコード: `Base64url → pako inflate → JSON.parse`
+- blob画像は共有不可 (externalUrl を持つ画像のみ対象)
+
 ## 4. 盤面の無効セル定義
 
 ```typescript
