@@ -18,7 +18,7 @@ src/
 │   ├── useCombo.ts                   # 展開データ CRUD (Context + useReducer)
 │   ├── useImageCache.ts             # 画像キャッシュ操作
 │   ├── useIsMobile.ts               # レスポンシブ判定 (640px ブレークポイント)
-│   ├── useTutorial.ts              # チュートリアル状態管理 (localStorage + DOM rect)
+│   ├── useTutorial.ts              # チュートリアル状態管理 (localStorage)
 │   └── useZip.ts                    # ZIP インポート/エクスポート
 │
 ├── contexts/
@@ -47,7 +47,7 @@ src/
 │   │   └── ImageGallery.tsx         # 画面下部 固定画像一覧
 │   │
 │   ├── tutorial/
-│   │   ├── TutorialOverlay.tsx      # チュートリアルオーバーレイ (SVGマスク+ツールチップ)
+│   │   ├── TutorialOverlay.tsx      # チュートリアルモーダル (スライド形式、画像+テキスト)
 │   │   └── tutorialSteps.ts         # チュートリアルステップ定義
 │   │
 │   └── home/
@@ -76,22 +76,22 @@ App
 │   │   └── TutorialOverlay?
 │   │
 │   ├── ComboCreatePage / ComboEditPage
-│   │   ├── Header [←, Import, DL, 保存, 削除]
-│   │   ├── TitleInput
-│   │   ├── StartingCards
-│   │   ├── DndContext (sortable + DragOverlay)
+│   │   ├── DndContext (ページ全体をラップ、space-y-4の外にgallery配置)
+│   │   │   ├── Header [←, Import, DL, 保存, 削除]
+│   │   │   ├── TitleInput
+│   │   │   ├── StartingCards (バツボタン常時表示)
 │   │   │   ├── StepCard[]
 │   │   │   │   ├── DragHandle
 │   │   │   │   ├── TextArea
-│   │   │   │   ├── BoardGrid (isDropTarget=選択中のみ)
+│   │   │   │   ├── BoardGrid (isDropTarget=常時true)
 │   │   │   │   │   └── DroppableCell[]
 │   │   │   │   │       ├── CardImage (攻撃/守備表示対応)
 │   │   │   │   │       ├── ChainBadge?
 │   │   │   │   │       └── CellMenu (チェーン+/-、攻撃/守備切替)
 │   │   │   │   └── DeleteButton
+│   │   │   ├── AddStepButton
+│   │   │   ├── ImageGallery (fixed bottom, ボトムシート、追加+URL+クリアボタン)
 │   │   │   └── DragOverlay (ドラッグ中カード画像)
-│   │   ├── AddStepButton
-│   │   ├── ImageGallery (fixed bottom, 追加+クリアボタン)
 │   │   ├── ImportModal
 │   │   ├── ConfirmModal (未保存警告)
 │   │   ├── ConfirmModal (削除確認)
@@ -204,11 +204,10 @@ CellAction 型:
 |-------|----|------|
 | step | ComboStep | ステップデータ |
 | index | number | ステップ番号 |
-| isSelected | boolean | 選択状態 |
-| onSelect | () => void | 選択コールバック |
 | onTextChange | (text: string) => void | テキスト変更 |
 | onBoardChange | (board: BoardState) => void | 盤面変更 |
 | onDelete | () => void | 削除コールバック |
+| getImageUrl | (id: string) => string \| null | 画像URL取得 |
 
 ### StepCardReadonly
 
@@ -223,8 +222,11 @@ CellAction 型:
 |-------|----|------|
 | images | CachedImage[] | 画像一覧 |
 | getImageUrl | (id: string) => string \| null | 画像URL取得 |
-| onAddImages | (files: FileList) => void | 画像追加 |
+| onAddImages | (files: FileList) => void | ファイル選択で画像追加 |
+| onAddImageFromUrl | ((url: string) => Promise\<void\>)? | URL から画像追加 (省略時はURLボタン非表示) |
 | onClearImages | (() => void)? | 画像一覧クリア (省略時はクリアボタン非表示) |
+| isOpen | boolean | ボトムシートの開閉状態 |
+| onToggle | () => void | ボトムシートの開閉トグル |
 
 ### DownloadModal
 

@@ -101,11 +101,15 @@ const CARD_RATIO = 86 / 59; // 縦:横 = 86:59
 
 ```typescript
 interface CachedImage {
-  id: string;        // UUID v4
-  fileName: string;  // 元のファイル名
-  blob: Blob;        // 画像バイナリデータ
+  id: string;            // UUID v4
+  fileName: string;      // 元のファイル名
+  blob: Blob;            // 画像バイナリデータ (外部URL画像の場合は空Blob)
+  externalUrl?: string;  // 外部画像URL (CORS回避用。設定時はblobではなくこのURLを表示に使う)
 }
 ```
+
+- ファイル選択で追加した画像: `blob` に画像データ、表示時は `URL.createObjectURL(blob)` を使用
+- URLから追加した画像: `blob` は空 (`new Blob()`)、`externalUrl` に元URLを保持。表示時は `externalUrl` を直接 `<img src>` に使用 (CORS制限でfetch不可のため)
 
 ## 4. 盤面の無効セル定義
 

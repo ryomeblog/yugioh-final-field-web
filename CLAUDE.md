@@ -43,6 +43,7 @@
 - React Context + useReducer (ComboContext)
 - IndexedDB (idb) で永続化
 - 画像は IndexedDB に Blob 保存、表示時に ObjectURL 生成
+- 外部URLから追加した画像は Blob を空にして externalUrl を保持し、表示時はそのURLを直接参照 (CORS回避)
 
 ## ルーティング
 
@@ -62,7 +63,7 @@
 - `src/contexts/comboContextValue.ts` — ComboContext + 型定義 (react-refresh対応で分離)
 - `src/contexts/ComboContext.tsx` — ComboProvider (Reducer + IndexedDB同期)
 - `src/hooks/useCombo.ts` — useCombo フック (react-refresh対応で分離)
-- `src/hooks/useImageCache.ts` — 画像キャッシュ操作 (ObjectURL 管理)
+- `src/hooks/useImageCache.ts` — 画像キャッシュ操作 (ObjectURL 管理、外部URL参照)
 - `src/hooks/useIsMobile.ts` — レスポンシブ判定 (640px 未満 = モバイル)
 - `src/hooks/useTutorial.ts` — チュートリアル状態管理 (localStorage)
 - `src/hooks/useZip.ts` — ZIP インポート/エクスポート
