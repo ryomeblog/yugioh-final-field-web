@@ -24,35 +24,35 @@ export const TUTORIAL_STEPS: Record<TutorialPageKey, TutorialStep[]> = {
       text: "こちらの画面では、展開を作成・編集できます。まず、展開のタイトルを入力します。",
     },
     {
-      image: "tutorial/edit-1.png",
+      image: "tutorial/edit-2.png",
       text: "NEURON URLにデッキURLを入力して「取得」ボタンを押すと、デッキ内のカード画像を一括取得できます。取得した画像は画像一覧に追加されます。",
     },
     {
-      image: "tutorial/edit-1.png",
+      image: "tutorial/edit-3.png",
       text: "初動札エリアには画面下部の画像一覧からドラッグ&ドロップで初動札を配置できます。タップで削除できます。",
     },
     {
-      image: "tutorial/edit-2.png",
+      image: "tutorial/edit-4.png",
       text: "「+」ボタンでステップを追加します。各ステップにテキストと盤面を設定できます。",
     },
     {
-      image: "tutorial/edit-3.png",
+      image: "tutorial/edit-5.png",
       text: "ステップの盤面にカードを配置できます。画像一覧からドラッグ&ドロップで配置してください。",
     },
     {
-      image: "tutorial/edit-4.png",
+      image: "tutorial/edit-6.png",
       text: "盤面上のカードをタップするとメニューが表示されます。チェーン番号の追加・編集、攻撃/守備表示の切り替え、削除ができます。",
     },
     {
-      image: "tutorial/edit-5.png",
+      image: "tutorial/edit-7.png",
       text: "左端のハンドル（≡）をドラッグしてステップの順番を並び替えられます。",
     },
     {
-      image: "tutorial/edit-6.png",
+      image: "tutorial/edit-8.png",
       text: "画像一覧です。画像を盤面や初動札にドラッグ&ドロップして配置します。スマホでは長押しでドラッグ開始です。削除エリアにドロップすると画像を削除できます。",
     },
     {
-      image: "tutorial/edit-7.png",
+      image: "tutorial/edit-9.png",
       text: "ヘッダーのボタンから、インポート（↑）・ダウンロード（↓）・保存（💾）・削除（🗑）ができます。",
     },
   ],
