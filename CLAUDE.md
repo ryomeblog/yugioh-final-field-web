@@ -2,7 +2,7 @@
 
 ## プロジェクト概要
 
-遊戯王の展開（コンボ）を1ステップずつカード形式で紹介するWebアプリ。展開はパッケージとしてZIPダウンロード可能。
+遊戯王の展開（コンボ）を1ステップずつカード形式で紹介するWebアプリ「遊戯王 展開ログ」。展開はパッケージとしてZIPダウンロード可能。
 
 ## 技術スタック
 
@@ -54,7 +54,7 @@
 | `/combo/new` | ComboEditPage | 新規作成 |
 | `/combo/:id` | ComboDetailPage | 詳細閲覧 |
 | `/combo/:id/edit` | ComboEditPage | 編集 |
-| `/share?d=<encoded>` | SharedComboPage | URL共有された展開の閲覧 (読み取り専用) |
+| `/share?d=<encoded>` | SharedComboPage | URL共有された展開のインポート (IndexedDBに保存後、詳細画面にリダイレクト) |
 
 ## ファイル構成
 
@@ -70,6 +70,7 @@
 - `src/hooks/useTutorial.ts` — チュートリアル状態管理 (localStorage)
 - `src/hooks/useZip.ts` — ZIP インポート/エクスポート
 - `src/utils/share.ts` — URL共有 エンコード/デコード (pako + Base64url)
+- `src/utils/neuron.ts` — Neuron デッキURL解析 (カード画像URL取得、cid抽出)
 - `src/components/layout/` — Header
 - `src/components/common/` — Modal, ImportModal, DropZone, ConfirmModal, ShareModal
 - `src/components/tutorial/` — TutorialOverlay, tutorialSteps
@@ -86,6 +87,15 @@
 - 画像サイズ: `useIsMobile` フックでモバイル/デスクトップのサイズを切り替え
 - ホーム画面: グリッド 1列 (モバイル) → 2列 (デスクトップ)
 - 詳細画面: テキスト+盤面が縦並び (モバイル) → 横並び (デスクトップ)
+
+## Neuron連携
+
+- 展開作成・編集画面に NEURON URL 入力欄を配置。取得ボタンでデッキのカード画像を一括取得
+- CORSプロキシ (`api.codetabs.com`) 経由でNeuronデッキページのHTMLを取得し、`get_image.action` URLを解析
+- 画像URLから `cid` (カードID) を抽出して一意識別に使用
+- URL共有時: neuronUrlがある場合は `imgs` に完全URLではなく `cid` のみを格納 (URL短縮)
+- 共有URL受信時: Neuron URLから画像を再取得し `cid→url` マップで解決
+- neuronUrlは `Combo.neuronUrl` に保存、`ShareData.n` に格納
 
 ## 設計書
 

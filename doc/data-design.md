@@ -28,6 +28,7 @@
 interface Combo {
   id: string;              // UUID v4
   title: string;           // 展開タイトル
+  neuronUrl?: string;      // Neuron デッキURL (省略可)
   startingCards: StartingCard[]; // 初動札 (画像付き)
   steps: ComboStep[];      // 展開ステップ一覧 (順序付き)
   createdAt: string;       // ISO 8601
@@ -116,8 +117,9 @@ interface CachedImage {
 ```typescript
 interface ShareData {
   t: string;          // title
+  n?: string;         // neuronUrl (省略可)
   sc: number[];       // startingCards の画像インデックス配列
-  imgs: string[];     // 使用画像の externalUrl 一覧
+  imgs: string[];     // 使用画像の識別子 (後述)
   steps: {
     x: string;        // step text
     b: [number, number, number, string?][];
@@ -131,6 +133,17 @@ interface ShareData {
 - エンコード: `JSON → pako deflate → Base64url`
 - デコード: `Base64url → pako inflate → JSON.parse`
 - blob画像は共有不可 (externalUrl を持つ画像のみ対象)
+
+#### imgs の内容 (Neuronの有無で異なる)
+
+| 条件 | imgs の内容 | 例 |
+|------|------------|-----|
+| `n` (neuronUrl) あり | カードID (`cid`) の配列 | `["8430", "12345"]` |
+| `n` なし | 完全な externalUrl の配列 | `["https://..."]` |
+
+- neuronUrl がある場合: `imgs` に `cid` のみ格納することでURL長を大幅に短縮
+- 共有URLアクセス時: Neuron デッキページを取得し `cid→画像URL` マップを構築して解決
+- neuronUrl がない場合: 従来通り完全URLを格納
 
 ## 4. 盤面の無効セル定義
 
@@ -203,7 +216,42 @@ export.zip
 | 新規の展開ID | 追加 |
 | ZIP内の画像 | IndexedDB の images ストアに保存 |
 
-## 7. 画面遷移とデータフロー
+## 7. Neuron連携
+
+### 概要
+
+Neuron デッキURLからカード画像を一括取得する機能。
+
+### 画像取得フロー
+
+```
+Neuron デッキURL
+  → CORSプロキシ (api.codetabs.com) 経由でHTML取得
+  → get_image.action URL を正規表現で抽出 (cid で重複排除)
+  → 各カードの画像URLを生成
+  → addImageFromUrl() で CachedImage として保存 (externalUrl 参照)
+```
+
+### カード識別
+
+- 画像URL: `get_image.action?type=1&lang=ja&cid={cid}&ciid={ciid}&enc={token}&osplang=1`
+- `cid` (カードID) がカードの一意識別子
+- `extractCid(url)` で画像URLからcidを抽出
+
+### URL共有時の画像解決
+
+```
+[エンコード時]
+neuronUrl あり → imgs に cid のみ格納 (URL短縮)
+neuronUrl なし → imgs に完全URL格納 (従来通り)
+
+[デコード時 (SharedComboPage)]
+data.n あり → Neuron から画像取得 → cid→url マップ構築 → 各cidをURLに解決
+data.n なし → imgs をそのままURLとして使用
+→ CachedImage として IndexedDB に保存 → Combo 保存 → 詳細画面にリダイレクト
+```
+
+## 8. 画面遷移とデータフロー
 
 ```
 [ホーム画面]
@@ -219,6 +267,13 @@ export.zip
   │                 └── インポート → ZIP → 単体展開反映
   │
   └── カード選択 → [展開詳細画面]
+                      │
+                      ├── 共有 → 共有モーダル → URLコピー
+                      │              │
+                      │              └── [共有展開画面 /share?d=...]
+                      │                   → 画像解決 (Neuron or URL)
+                      │                   → IndexedDB に保存
+                      │                   → [展開詳細画面] にリダイレクト
                       │
                       └── 編集 → [展開編集画面]
                                     │

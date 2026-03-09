@@ -56,13 +56,14 @@ src/
 │       └── SettingsModal.tsx        # 設定モーダル (チュートリアル管理)
 │
 ├── utils/
-│   └── share.ts                     # URL共有 エンコード/デコード (pako + Base64url)
+│   ├── share.ts                     # URL共有 エンコード/デコード (pako + Base64url)
+│   └── neuron.ts                    # Neuron デッキURL解析 (画像URL取得、cid抽出)
 │
 └── pages/
     ├── HomePage.tsx                  # ホーム画面
     ├── ComboEditPage.tsx            # 展開作成・編集画面 (新規/既存兼用)
     ├── ComboDetailPage.tsx          # 展開詳細画面
-    └── SharedComboPage.tsx          # 共有展開画面 (URL共有された展開の閲覧)
+    └── SharedComboPage.tsx          # 共有展開画面 (デコード→IndexedDB保存→詳細画面リダイレクト)
 ```
 
 ## コンポーネントツリー
@@ -84,6 +85,7 @@ App
 │   │   ├── DndContext (ページ全体をラップ、space-y-4の外にgallery配置)
 │   │   │   ├── Header [←, Import, DL, 保存, 削除]
 │   │   │   ├── TitleInput
+│   │   │   ├── NeuronUrlInput (URL入力 + 取得ボタン)
 │   │   │   ├── StartingCards (バツボタン常時表示)
 │   │   │   ├── StepCard[]
 │   │   │   │   ├── DragHandle
@@ -114,13 +116,9 @@ App
 │   │   └── TutorialOverlay?
 │   │
 │   └── SharedComboPage
-│       ├── Header [←, タイトル]
-│       ├── DndContext (StartingCards用)
-│       │   └── StartingCards (readonly)
-│       └── StepCardReadonly[]
-│           ├── Text (左側)
-│           └── BoardMini (右側, 縮小)
-│               └── ChainBadge?
+│       └── (デコード → 画像保存 → Combo保存 → /combo/:id にリダイレクト)
+│           ├── ローディング表示
+│           └── エラー表示 + ホームへのリンク
 ```
 
 ## 主要コンポーネント仕様
