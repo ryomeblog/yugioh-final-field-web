@@ -6,6 +6,7 @@ import {
   FiChevronUp,
   FiChevronDown,
   FiLink,
+  FiMove,
 } from "react-icons/fi";
 import type { CachedImage } from "@/types";
 import { CARD_RATIO } from "@/types";
@@ -27,24 +28,37 @@ function DraggableImage({
     data: { type: "gallery-image", imageId: image.id },
   });
 
+  const handleH = 16;
+
   return (
     <div
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      style={{ width: thumbW, height: thumbH, touchAction: "none" }}
-      className={`flex-shrink-0 cursor-grab rounded bg-gray-700 ${
-        isDragging ? "opacity-50" : ""
-      }`}
+      style={{ width: thumbW, touchAction: "auto" }}
+      className={`flex flex-shrink-0 flex-col ${isDragging ? "opacity-50" : ""}`}
     >
-      {url && (
-        <img
-          src={url}
-          alt={image.fileName}
-          className="h-full w-full rounded object-cover"
-          draggable={false}
-        />
-      )}
+      {/* ドラッグハンドル */}
+      <div
+        {...attributes}
+        {...listeners}
+        style={{ height: handleH, touchAction: "none" }}
+        className="flex cursor-grab items-center justify-center rounded-t bg-gray-600 hover:bg-gray-500"
+      >
+        <FiMove size={10} className="text-gray-300" />
+      </div>
+      {/* 画像 */}
+      <div
+        style={{ width: thumbW, height: thumbH }}
+        className="rounded-b bg-gray-700"
+      >
+        {url && (
+          <img
+            src={url}
+            alt={image.fileName}
+            className="h-full w-full rounded-b object-cover"
+            draggable={false}
+          />
+        )}
+      </div>
     </div>
   );
 }
