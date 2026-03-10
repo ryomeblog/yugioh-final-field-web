@@ -444,7 +444,7 @@ export function ComboEditPage() {
       >
         <div className="flex flex-1 flex-col overflow-hidden">
           <div
-            className={`flex-1 space-y-4 overflow-y-auto p-3 sm:p-4 ${galleryOpen ? "pb-64 sm:pb-80" : "pb-20"}`}
+            className={`flex-1 space-y-4 overflow-y-auto p-3 sm:p-4 ${galleryOpen ? "pb-72 sm:pb-80" : "pb-20"}`}
           >
             {/* Title */}
             <input

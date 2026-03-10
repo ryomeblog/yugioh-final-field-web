@@ -49,7 +49,15 @@ export const TUTORIAL_STEPS: Record<TutorialPageKey, TutorialStep[]> = {
     },
     {
       image: "tutorial/edit-8.png",
-      text: "画像一覧です。画像を盤面や初動札にドラッグ&ドロップして配置します。スマホでは長押しでドラッグ開始です。削除エリアにドロップすると画像を削除できます。",
+      text: "画像一覧です。画像上部のハンドルをドラッグして盤面や初動札に配置します。スマホではハンドルを長押しでドラッグ開始です。削除エリアにドロップすると画像を削除できます。",
+    },
+    {
+      image: "tutorial/edit-8.png",
+      text: "画像の追加方法は3つあります。「NEURON URL」からデッキの全カード画像を一括取得、「URL」ボタンから画像URLを指定して追加、「追加」ボタンからファイルを選択して追加できます。",
+    },
+    {
+      image: "tutorial/edit-8.png",
+      text: "注意: ファイルから追加した画像は共有URLでは共有できません。共有URLで共有するにはNEURON URLまたは画像URLから追加してください。ファイル画像を含む展開はZIPダウンロードで共有できます。",
     },
     {
       image: "tutorial/edit-9.png",

@@ -17,11 +17,13 @@ function DraggableImage({
   url,
   thumbW,
   thumbH,
+  isMobile,
 }: {
   image: CachedImage;
   url: string | null;
   thumbW: number;
   thumbH: number;
+  isMobile: boolean;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `gallery-${image.id}`,
@@ -30,13 +32,37 @@ function DraggableImage({
 
   const handleH = 16;
 
+  // PC: 画像全体をドラッグ可能
+  if (!isMobile) {
+    return (
+      <div
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
+        style={{ width: thumbW, height: thumbH, touchAction: "none" }}
+        className={`flex-shrink-0 cursor-grab rounded bg-gray-700 ${
+          isDragging ? "opacity-50" : ""
+        }`}
+      >
+        {url && (
+          <img
+            src={url}
+            alt={image.fileName}
+            className="h-full w-full rounded object-cover"
+            draggable={false}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // モバイル: ハンドルのみドラッグ可能、画像部分はスクロール可能
   return (
     <div
       ref={setNodeRef}
       style={{ width: thumbW, touchAction: "auto" }}
       className={`flex flex-shrink-0 flex-col ${isDragging ? "opacity-50" : ""}`}
     >
-      {/* ドラッグハンドル */}
       <div
         {...attributes}
         {...listeners}
@@ -45,7 +71,6 @@ function DraggableImage({
       >
         <FiMove size={10} className="text-gray-300" />
       </div>
-      {/* 画像 */}
       <div
         style={{ width: thumbW, height: thumbH }}
         className="rounded-b bg-gray-700"
@@ -245,6 +270,7 @@ export function ImageGallery({
                       url={getImageUrl(img.id)}
                       thumbW={thumbW}
                       thumbH={thumbH}
+                      isMobile={isMobile}
                     />
                   ))}
                 </div>
@@ -257,6 +283,7 @@ export function ImageGallery({
                         url={getImageUrl(img.id)}
                         thumbW={thumbW}
                         thumbH={thumbH}
+                        isMobile={isMobile}
                       />
                     ))}
                   </div>
