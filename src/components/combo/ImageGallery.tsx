@@ -17,13 +17,13 @@ function DraggableImage({
   url,
   thumbW,
   thumbH,
-  isMobile,
+  showHandle,
 }: {
   image: CachedImage;
   url: string | null;
   thumbW: number;
   thumbH: number;
-  isMobile: boolean;
+  showHandle: boolean;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `gallery-${image.id}`,
@@ -32,8 +32,8 @@ function DraggableImage({
 
   const handleH = 16;
 
-  // PC: 画像全体をドラッグ可能
-  if (!isMobile) {
+  // ハンドル非表示: 画像全体をドラッグ可能
+  if (!showHandle) {
     return (
       <div
         ref={setNodeRef}
@@ -56,7 +56,7 @@ function DraggableImage({
     );
   }
 
-  // モバイル: ハンドルのみドラッグ可能、画像部分はスクロール可能
+  // ハンドル表示: ハンドルのみドラッグ可能、画像部分はスクロール可能
   return (
     <div
       ref={setNodeRef}
@@ -117,6 +117,8 @@ interface ImageGalleryProps {
   onClearImages?: () => void;
   isOpen: boolean;
   onToggle: () => void;
+  /** ドラッグハンドルを表示するか (設定による) */
+  showDragHandle?: boolean;
 }
 
 export function ImageGallery({
@@ -127,6 +129,7 @@ export function ImageGallery({
   onClearImages,
   isOpen,
   onToggle,
+  showDragHandle = false,
 }: ImageGalleryProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
@@ -270,7 +273,7 @@ export function ImageGallery({
                       url={getImageUrl(img.id)}
                       thumbW={thumbW}
                       thumbH={thumbH}
-                      isMobile={isMobile}
+                      showHandle={showDragHandle}
                     />
                   ))}
                 </div>
@@ -283,7 +286,7 @@ export function ImageGallery({
                         url={getImageUrl(img.id)}
                         thumbW={thumbW}
                         thumbH={thumbH}
-                        isMobile={isMobile}
+                        showHandle={showDragHandle}
                       />
                     ))}
                   </div>

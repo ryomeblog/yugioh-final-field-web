@@ -6,6 +6,8 @@ interface BoardMiniProps {
   board: BoardState;
   cellSize?: number;
   getImageUrl?: (id: string) => string | null;
+  /** 非表示にする行インデックス */
+  hideRows?: number[];
 }
 
 /** カード画像幅の比率 (59/86) */
@@ -15,11 +17,15 @@ export function BoardMini({
   board,
   cellSize = 48,
   getImageUrl,
+  hideRows,
 }: BoardMiniProps) {
   const gap = 2;
   const step = cellSize + gap;
+  const visibleRowCount = hideRows
+    ? board.cells.length - hideRows.length
+    : board.cells.length;
   const width = 5 * step - gap;
-  const height = 5 * step - gap;
+  const height = visibleRowCount * step - gap;
 
   const innerW = Math.round(cellSize * IMG_W_RATIO);
   const innerH = cellSize;
@@ -30,11 +36,15 @@ export function BoardMini({
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      {board.cells.map((row, ri) =>
-        row.map((cell, ci) => {
+      {board.cells.map((row, ri) => {
+        if (hideRows?.includes(ri)) return null;
+        const visibleIndex = hideRows
+          ? ri - hideRows.filter((hr) => hr < ri).length
+          : ri;
+        return row.map((cell, ci) => {
           if (isDisabled(ri, ci)) return null;
           const x = ci * step;
-          const y = ri * step;
+          const y = visibleIndex * step;
           const hasImage = cell?.imageId != null;
           const imageUrl =
             hasImage && getImageUrl ? getImageUrl(cell!.imageId!) : null;
@@ -81,8 +91,8 @@ export function BoardMini({
               )}
             </g>
           );
-        }),
-      )}
+        });
+      })}
     </svg>
   );
 }

@@ -19,6 +19,8 @@ interface BoardGridProps {
   droppablePrefix?: string;
   onCellAction?: (row: number, col: number, action: CellAction) => void;
   getImageUrl?: (id: string) => string | null;
+  /** 非表示にする行インデックス (例: [0, 1] で相手盤面を隠す) */
+  hideRows?: number[];
 }
 
 /** デスクトップ時の最大セルサイズ */
@@ -207,7 +209,17 @@ export function BoardGrid({
   droppablePrefix,
   onCellAction,
   getImageUrl,
+  hideRows,
 }: BoardGridProps) {
+  const visibleRows = hideRows
+    ? board.cells.filter((_, ri) => !hideRows.includes(ri))
+    : board.cells;
+  const rowIndexMap = hideRows
+    ? board.cells
+        .map((_, ri) => ri)
+        .filter((ri) => !hideRows.includes(ri))
+    : board.cells.map((_, ri) => ri);
+
   return (
     <div
       className="grid w-full"
@@ -217,8 +229,9 @@ export function BoardGrid({
         maxWidth: `${MAX_GRID_W}px`,
       }}
     >
-      {board.cells.map((row, ri) =>
-        row.map((cell, ci) => (
+      {visibleRows.map((row, vi) => {
+        const ri = rowIndexMap[vi];
+        return row.map((cell, ci) => (
           <DroppableCell
             key={`${ri}-${ci}`}
             row={ri}
@@ -230,8 +243,8 @@ export function BoardGrid({
             getImageUrl={getImageUrl}
             onAction={(action) => onCellAction?.(ri, ci, action)}
           />
-        )),
-      )}
+        ));
+      })}
     </div>
   );
 }

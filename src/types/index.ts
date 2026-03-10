@@ -19,6 +19,8 @@ export interface ComboStep {
   order: number;
   text: string;
   board: BoardState;
+  /** 相手盤面 (row 0,1) を表示するか (デフォルト: true) */
+  showOpponentBoard?: boolean;
 }
 
 export interface BoardState {

@@ -11,6 +11,7 @@ interface StepCardProps {
   onBoardChange: (board: BoardState) => void;
   onDelete: () => void;
   getImageUrl?: (id: string) => string | null;
+  onToggleOpponentBoard?: (show: boolean) => void;
 }
 
 export function StepCard({
@@ -20,7 +21,9 @@ export function StepCard({
   onBoardChange,
   onDelete,
   getImageUrl,
+  onToggleOpponentBoard,
 }: StepCardProps) {
+  const showOpponent = step.showOpponentBoard !== false;
   const {
     attributes,
     listeners,
@@ -116,7 +119,24 @@ export function StepCard({
           />
 
           {/* Board */}
-          <p className="mb-1 text-xs text-gray-400">盤面:</p>
+          <div className="mb-1 flex items-center gap-2">
+            <p className="text-xs text-gray-400">盤面:</p>
+            <label className="flex cursor-pointer items-center gap-1.5">
+              <span className="text-[10px] text-gray-500">相手盤面</span>
+              <button
+                onClick={() => onToggleOpponentBoard?.(!showOpponent)}
+                className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${
+                  showOpponent ? "bg-green-600" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3 w-3 rounded-full bg-white shadow transition-transform ${
+                    showOpponent ? "translate-x-4" : "translate-x-0.5"
+                  }`}
+                />
+              </button>
+            </label>
+          </div>
           <BoardGrid
             board={step.board}
             editable={true}
@@ -124,6 +144,7 @@ export function StepCard({
             droppablePrefix={`step-${step.id}`}
             onCellAction={handleCellAction}
             getImageUrl={getImageUrl}
+            hideRows={showOpponent ? undefined : [0, 1]}
           />
         </div>
       </div>

@@ -15,6 +15,7 @@ export function StepCardReadonly({
 }: StepCardReadonlyProps) {
   const isMobile = useIsMobile();
   const miniCellSize = isMobile ? 36 : 48;
+  const showOpponent = step.showOpponentBoard !== false;
 
   return (
     <div className="rounded-lg border border-gray-700 bg-gray-800/60 p-3 sm:p-4">
@@ -33,6 +34,7 @@ export function StepCardReadonly({
             board={step.board}
             cellSize={miniCellSize}
             getImageUrl={getImageUrl}
+            hideRows={showOpponent ? undefined : [0, 1]}
           />
         </div>
       </div>

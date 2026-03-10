@@ -23,6 +23,7 @@ import {
   FiSave,
   FiTrash2,
   FiPlus,
+  FiSettings,
 } from "react-icons/fi";
 import { Header } from "@/components/layout/Header";
 import { StartingCards } from "@/components/combo/StartingCards";
@@ -30,6 +31,7 @@ import { StepCard } from "@/components/combo/StepCard";
 import { ImageGallery } from "@/components/combo/ImageGallery";
 import { ImportModal } from "@/components/common/ImportModal";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
+import { SettingsModal } from "@/components/home/SettingsModal";
 import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { useCombo } from "@/hooks/useCombo";
 import { useImageCache } from "@/hooks/useImageCache";
@@ -38,6 +40,7 @@ import { useTutorial } from "@/hooks/useTutorial";
 import type { Combo, ComboStep, BoardState, StartingCard } from "@/types";
 import { createEmptyBoard, CARD_RATIO } from "@/types";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useEditSettings } from "@/hooks/useEditSettings";
 import { fetchNeuronCardUrls, extractCid } from "@/utils/neuron";
 
 export function ComboEditPage() {
@@ -55,6 +58,7 @@ export function ComboEditPage() {
   } = useImageCache();
   const { exportCombos, importZip } = useZip();
   const isMobile = useIsMobile();
+  const { settings: editSettings } = useEditSettings();
   const tutorial = useTutorial("comboEdit");
 
   const overlayW = isMobile ? 48 : 70;
@@ -87,6 +91,7 @@ export function ComboEditPage() {
     null,
   );
   const [galleryOpen, setGalleryOpen] = useState(true);
+  const [showEditSettings, setShowEditSettings] = useState(false);
 
   // この展開に属する画像IDを管理 (展開間で画像を分離)
   const [comboImageIds, setComboImageIds] = useState<Set<string>>(() => {
@@ -235,6 +240,7 @@ export function ComboEditPage() {
       order: steps.length,
       text: "",
       board: createEmptyBoard(),
+      showOpponentBoard: editSettings.hideOpponentBoard ? false : undefined,
     };
     setSteps((prev) => [...prev, newStep]);
     markDirty();
@@ -433,6 +439,12 @@ export function ComboEditPage() {
             >
               <FiTrash2 size={14} />
             </button>
+            <button
+              onClick={() => setShowEditSettings(true)}
+              className="rounded-md bg-gray-700 p-2 text-gray-300 hover:bg-gray-600"
+            >
+              <FiSettings size={14} />
+            </button>
           </>
         }
       />
@@ -508,6 +520,16 @@ export function ComboEditPage() {
                     onBoardChange={(board) => updateStepBoard(step.id, board)}
                     onDelete={() => deleteStep(step.id)}
                     getImageUrl={getImageUrl}
+                    onToggleOpponentBoard={(show) => {
+                      setSteps((prev) =>
+                        prev.map((s) =>
+                          s.id === step.id
+                            ? { ...s, showOpponentBoard: show }
+                            : s,
+                        ),
+                      );
+                      markDirty();
+                    }}
                   />
                 ))}
               </div>
@@ -541,6 +563,7 @@ export function ComboEditPage() {
             }}
             isOpen={galleryOpen}
             onToggle={() => setGalleryOpen((v) => !v)}
+            showDragHandle={editSettings.showDragHandle}
           />
         </div>
 
@@ -566,6 +589,12 @@ export function ComboEditPage() {
         </DragOverlay>
       </DndContext>
 
+      {showEditSettings && (
+        <SettingsModal
+          isOpen={showEditSettings}
+          onClose={() => setShowEditSettings(false)}
+        />
+      )}
       <ImportModal
         isOpen={showImport}
         onClose={() => setShowImport(false)}
