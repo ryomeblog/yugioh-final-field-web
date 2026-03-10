@@ -190,7 +190,7 @@ export function ImageGallery({
             {/* ツールバー */}
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[10px] text-gray-500">
-                D&D で盤面・初動札に配置
+                ドラッグ&ドロップで盤面・初動札に配置
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -198,7 +198,7 @@ export function ImageGallery({
                   className="flex items-center gap-1 rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
                 >
                   <FiPlus size={12} />
-                  追加
+                  ファイル追加
                 </button>
                 {onAddImageFromUrl && (
                   <button

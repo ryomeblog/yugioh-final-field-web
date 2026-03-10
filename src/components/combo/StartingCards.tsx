@@ -68,7 +68,7 @@ export function StartingCards({
             );
           })}
         {editable && cards.length === 0 && (
-          <span className="text-xs text-gray-600">画面下部から D&D で配置</span>
+          <span className="text-xs text-gray-600">画面下部からドラッグ&ドロップで配置</span>
         )}
       </div>
     </div>

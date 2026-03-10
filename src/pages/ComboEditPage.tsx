@@ -240,7 +240,7 @@ export function ComboEditPage() {
       order: steps.length,
       text: "",
       board: createEmptyBoard(),
-      showOpponentBoard: editSettings.hideOpponentBoard ? false : undefined,
+      showOpponentBoard: editSettings.showOpponentBoard ? undefined : false,
     };
     setSteps((prev) => [...prev, newStep]);
     markDirty();
