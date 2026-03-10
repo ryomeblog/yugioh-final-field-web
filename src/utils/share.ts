@@ -121,7 +121,11 @@ export function encodeShareUrl(
             }
           }
         }
-        return { x: step.text, b };
+        return {
+          x: step.text,
+          b,
+          ...(step.showOpponentBoard === false ? { o: true } : {}),
+        };
       }),
   };
 
@@ -203,6 +207,7 @@ export function shareDataToCombo(
       order: i,
       text: s.x,
       board,
+      ...(s.o ? { showOpponentBoard: false } : {}),
     };
   });
 

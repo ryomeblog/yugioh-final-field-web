@@ -97,5 +97,7 @@ export interface ShareData {
     x: string;
     /** 配置済みセルのみ: [row, col, imgIdx, "d"?] */
     b: [number, number, number, string?][];
+    /** 相手盤面非表示フラグ (true のとき非表示) */
+    o?: boolean;
   }[];
 }
